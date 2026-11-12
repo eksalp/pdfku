@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PDFku — Alat PDF Gratis di Browser</title>
+<meta name="description" content="Gabung, pisah, kompres PDF, dan ubah gambar ke PDF gratis. File diproses di perangkatmu, tidak di-upload ke server.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%23e2512b%27/%3E%3Cpath d=%27M18 8h-6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V12z%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272.2%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="lib/fonts.css">
+<script src="lib/pdf-lib.min.js"></script>
+<script src="lib/pdf.min.js"></script>
+<script src="lib/pdf.worker.min.js"></script>
+<script src="lib/jszip.min.js"></script>
+<style>
+:root{
+  --bg:#f7f5f0; --card:#ffffff; --ink:#1c1a17; --muted:#6b665d; --line:#e6e1d6;
+  --accent:#e2512b; --accent-ink:#ffffff; --accent-soft:#fdebe5;
+  --c-merge:#e2512b; --c-split:#2f6fde; --c-img:#d99a0b; --c-jpg:#16a085; --c-zip:#7a4fd6;
+  --radius:16px; --shadow:0 1px 2px rgba(28,26,23,.05),0 8px 24px rgba(28,26,23,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:"Plus Jakarta Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer}
+a{color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+header.top{position:sticky;top:0;z-index:20;background:rgba(247,245,240,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:62px;gap:12px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.02em;text-decoration:none}
+.logo .mark{width:32px;height:32px;border-radius:9px;background:var(--accent);display:grid;place-items:center;color:#fff}
+.logo b{color:var(--accent)}
+nav.tools-nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+nav.tools-nav::-webkit-scrollbar{display:none}
+nav.tools-nav a{white-space:nowrap;text-decoration:none;font-weight:600;font-size:14px;color:var(--muted);padding:8px 12px;border-radius:10px}
+nav.tools-nav a:hover{color:var(--ink);background:#efebe2}
+nav.tools-nav a.on{color:var(--ink);background:#e9e4d8}
+
+.hero{padding:56px 0 28px;text-align:center}
+.hero h1{font-size:clamp(30px,5vw,48px);line-height:1.1;letter-spacing:-.03em;margin:0 0 14px;font-weight:800}
+.hero p{color:var(--muted);font-size:17px;margin:0 auto;max-width:620px}
+.badge{display:inline-flex;align-items:center;gap:8px;background:#e7f4ee;color:#11704f;font-weight:600;font-size:13px;padding:6px 12px;border-radius:999px;margin-bottom:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;padding:20px 0 64px}
+.tool-card{display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);transition:transform .15s ease,border-color .15s ease}
+.tool-card:hover{transform:translateY(-3px);border-color:#d6cfbf}
+.tool-card .ic{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;color:#fff;margin-bottom:16px}
+.tool-card h3{margin:0 0 6px;font-size:18px;letter-spacing:-.01em}
+.tool-card p{margin:0;color:var(--muted);font-size:14px}
+
+.view{display:none;padding:36px 0 80px}
+.view.on{display:block}
+.view-head{text-align:center;margin-bottom:26px}
+.view-head h2{font-size:clamp(26px,4vw,38px);letter-spacing:-.03em;margin:0 0 8px}
+.view-head p{color:var(--muted);margin:0}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-weight:600;font-size:14px;margin-bottom:18px}
+.back:hover{color:var(--ink)}
+
+.drop{border:2px dashed #cfc7b6;border-radius:20px;background:var(--card);padding:48px 20px;text-align:center;transition:.15s;max-width:720px;margin:0 auto}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop .big{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:var(--accent-ink);border:0;padding:16px 30px;border-radius:14px;font-weight:700;font-size:18px;box-shadow:0 6px 18px rgba(226,81,43,.28)}
+.drop .big:hover{filter:brightness(1.05)}
+.drop small{display:block;color:var(--muted);margin-top:14px;font-size:14px}
+input[type=file]{display:none}
+
+.work{display:none;gap:22px;grid-template-columns:1fr 320px;align-items:start}
+.work.on{display:grid}
+@media (max-width:860px){.work.on{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.panel h4{margin:0 0 12px;font-size:15px}
+.side{position:sticky;top:80px}
+.opt{margin-bottom:18px}
+.opt label.t{display:block;font-weight:700;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+.seg{display:grid;gap:8px}
+.seg.cols3{grid-template-columns:repeat(3,1fr)}
+.seg.cols2{grid-template-columns:repeat(2,1fr)}
+.seg button{border:1.5px solid var(--line);background:#fff;border-radius:11px;padding:10px 10px;font-weight:600;font-size:14px;text-align:left;color:var(--ink)}
+.seg.cols3 button,.seg.cols2 button{text-align:center}
+.seg button small{display:block;font-weight:500;color:var(--muted);font-size:12.5px;margin-top:2px}
+.seg button.on{border-color:var(--accent);background:var(--accent-soft)}
+.field{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:10px 12px;font:inherit;font-size:15px;background:#fff}
+.field:focus{outline:none;border-color:var(--accent)}
+.hint{font-size:13px;color:var(--muted);margin-top:6px}
+.hint.err{color:#b42318}
+.go{width:100%;border:0;background:var(--accent);color:#fff;font-weight:700;font-size:17px;padding:15px;border-radius:13px;box-shadow:0 6px 18px rgba(226,81,43,.25)}
+.go:disabled{opacity:.45;box-shadow:none;cursor:not-allowed}
+.ghost{border:1.5px solid var(--line);background:#fff;border-radius:11px;padding:9px 14px;font-weight:600;font-size:14px;color:var(--ink)}
+.ghost:hover{border-color:#cfc7b6}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.muted{color:var(--muted)}
+
+/* file list */
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.fitem{position:relative;background:#faf8f3;border:1.5px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:grab;user-select:none}
+.fitem.dragging{opacity:.4}
+.fitem.drop-target{border-color:var(--accent)}
+.fitem .thumb{width:100%;aspect-ratio:3/4;background:#fff;border-radius:8px;display:grid;place-items:center;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.fitem .thumb canvas,.fitem .thumb img{max-width:100%;max-height:100%;display:block}
+.fitem .nm{font-size:12.5px;font-weight:600;width:100%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fitem .meta{font-size:12px;color:var(--muted);margin-top:-6px}
+.fitem .acts{position:absolute;top:6px;right:6px;display:flex;gap:4px;opacity:0;transition:.15s}
+.fitem:hover .acts,.fitem:focus-within .acts{opacity:1}
+@media (hover:none){.fitem .acts{opacity:1}}
+.fitem .acts button{width:28px;height:28px;border-radius:8px;border:0;background:rgba(28,26,23,.78);color:#fff;display:grid;place-items:center;padding:0}
+.fitem .idx{position:absolute;top:6px;left:6px;background:var(--ink);color:#fff;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px}
+
+/* page grid (split) */
+.pages{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:12px;max-height:620px;overflow:auto;padding:4px}
+.pg{position:relative;border:2px solid var(--line);border-radius:10px;padding:6px;background:#faf8f3;cursor:pointer;text-align:center}
+.pg .thumb{aspect-ratio:3/4;background:#fff;border-radius:6px;display:grid;place-items:center;overflow:hidden}
+.pg .thumb canvas{max-width:100%;max-height:100%}
+.pg span{font-size:12px;font-weight:600;color:var(--muted)}
+.pg.sel{border-color:var(--c-split);background:#eaf1fd}
+.pg.sel::after{content:"✓";position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:var(--c-split);color:#fff;font-size:13px;display:grid;place-items:center;font-weight:700}
+.pages.nosel .pg{cursor:default}
+.pages.nosel .pg.sel{border-color:var(--line);background:#faf8f3}
+.pages.nosel .pg.sel::after{display:none}
+
+/* overlay */
+.overlay{position:fixed;inset:0;background:rgba(247,245,240,.94);z-index:50;display:none;place-items:center;padding:20px}
+.overlay.on{display:grid}
+.ov-box{background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:34px;max-width:460px;width:100%;text-align:center}
+.ov-box h3{margin:0 0 6px;font-size:22px;letter-spacing:-.02em}
+.bar{height:10px;background:#efebe2;border-radius:99px;overflow:hidden;margin:20px 0 10px}
+.bar i{display:block;height:100%;width:0;background:var(--accent);border-radius:99px;transition:width .2s}
+.result-ic{width:64px;height:64px;border-radius:50%;background:#e7f4ee;color:#11704f;display:grid;place-items:center;margin:0 auto 14px}
+.fname{font-weight:700;word-break:break-all}
+.cmp{display:flex;justify-content:center;align-items:center;gap:12px;margin:14px 0 4px;font-weight:700}
+.cmp .save{background:#e7f4ee;color:#11704f;border-radius:8px;padding:2px 10px;font-size:14px}
+.ov-actions{display:grid;gap:10px;margin-top:22px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;font-size:14px;opacity:0;transition:.25s;z-index:60;pointer-events:none;max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.drop small.lock{margin-top:6px;font-size:13px;color:#11704f}
+.drop small.lock a,footer a{color:inherit;font-weight:600}
+.legal{max-width:760px;margin:0 auto}
+.legal .panel{padding:28px 30px;margin-bottom:18px}
+.legal h3{margin:0 0 10px;font-size:19px;letter-spacing:-.01em}
+.legal p,.legal li{color:#3d3a34;font-size:15.5px}
+.legal ul,.legal ol{padding-left:20px;margin:8px 0}
+.legal li{margin:6px 0}
+.legal .tldr{background:#e7f4ee;border:1px solid #bfe3d2;border-radius:var(--radius);padding:22px 26px;margin-bottom:18px}
+.legal .tldr h3{color:#0d5c41}
+.legal .tldr li{color:#0d5c41;font-weight:600}
+.legal code{background:#efebe2;border-radius:6px;padding:1px 6px;font-size:14px}
+.legal .eff{color:var(--muted);font-size:13.5px;text-align:center;margin-top:20px}
+.tool-card{position:relative}
+.tool-card .tag{position:absolute;top:18px;right:18px;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 9px}
+.tag.local{background:#e7f4ee;color:#11704f}
+.tag.cloud{background:#eaf1fd;color:#1d4fa8}
+.drop small.cloud{margin-top:6px;font-size:13px;color:#1d4fa8}
+.drop small.cloud a{color:inherit;font-weight:600}
+.note.cloudnote{background:#eaf1fd;border-color:#c9daf7;color:#1d4fa8}
+.srv-off{display:none}
+body.no-server .srv-only{display:none!important}
+body:not(.no-server) .nosrv-only{display:none!important}
+body.server-down .srv-off{display:block}
+body.server-down [data-drop="office"]{opacity:.45;pointer-events:none}
+.orow{display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid var(--line);border-radius:12px;background:#faf8f3;margin-bottom:10px}
+.orow .ext{width:44px;height:52px;border-radius:8px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px;flex:none}
+.orow .nm{flex:1;min-width:0}
+.orow .nm b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14.5px}
+.orow .nm span{font-size:12.5px;color:var(--muted)}
+.orow .st{font-size:12.5px;font-weight:600;color:var(--muted)}
+.orow .st.ok{color:#11704f}.orow .st.err{color:#b42318}
+.orow button{border:0;background:transparent;color:var(--muted);width:30px;height:30px;border-radius:8px;display:grid;place-items:center}
+.orow button:hover{background:#efebe2;color:var(--ink)}
+.grid-label{grid-column:1/-1;font-weight:700;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.05em;margin-top:6px}
+footer{border-top:1px solid var(--line);padding:26px 0;color:var(--muted);font-size:13px;text-align:center}
+.note{background:#fff8e6;border:1px solid #f2dfaa;color:#7a5a00;border-radius:11px;padding:10px 12px;font-size:13px;margin-top:10px}
+.empty-pages{color:var(--muted);text-align:center;padding:30px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#"><span class="mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></span><span>PDF<b>ku</b></span></a>
+    <nav class="tools-nav" id="topnav"></nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- HOME -->
+  <section class="view on" id="v-home">
+    <div class="hero">
+      <a class="badge" href="#privasi" style="text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> <span class="nosrv-only">File diproses di perangkatmu, tidak di-upload · Baca selengkapnya →</span><span class="srv-only">Sebagian besar alat bekerja tanpa upload · File di server langsung dihapus →</span></a>
+      <h1>Semua alat PDF yang kamu butuhkan</h1>
+      <p><span class="nosrv-only">Gabung, pisah, kompres, dan ubah gambar ↔ PDF.</span><span class="srv-only">Gabung, pisah, kompres, Word/Excel/PowerPoint ke PDF, dan gambar ↔ PDF.</span> Gratis, cepat, tanpa daftar.</p>
+    </div>
+    <div class="grid" id="toolgrid"></div>
+  </section>
+
+  <!-- GABUNG -->
+  <section class="view" id="v-gabung">
+    <a class="back" href="#">← Semua alat</a>
+    <div class="view-head"><h2>Gabung PDF</h2><p>Satukan beberapa PDF jadi satu file, urutkan sesukamu.</p></div>
+    <div class="drop" data-drop="gabung">
+      <button class="big" data-pick="gabung">Pilih file PDF</button>
+      <small>atau seret file ke sini · bisa banyak sekaligus</small><small class="lock">🔒 File tidak di-upload. Diproses langsung di perangkatmu. <a href="#privasi">Kenapa aman?</a></small>
+      <input type="file" id="in-gabung" accept="application/pdf,.pdf" multiple>
+    </div>
+    <div class="work" id="w-gabung">
+      <div class="panel">
+        <div class="row"><h4 style="margin:0">Urutan file <span class="muted" style="font-weight:500">· seret untuk mengubah urutan</span></h4><button class="ghost" data-pick="gabung">+ Tambah file</button></div>
+        <div class="files" id="list-gabung"></div>
+      </div>
+      <div class="panel side">
+        <h4>Gabung PDF</h4>
+        <p class="muted" style="font-size:14px;margin:0 0 16px" id="sum-gabung"></p>
+        <div class="opt">
+          <label class="t">Urutkan cepat</label>
+          <div class="seg cols2">
+            <button data-sort="az">Nama A–Z</button>
+            <button data-sort="za">Nama Z–A</button>
+          </div>
+        </div>
+        <button class="go" id="go-gabung">Gabung PDF →</button>
+        <p class="hint" id="hint-gabung"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PISAH -->
+  <section class="view" id="v-pisah">
+    <a class="back" href="#">← Semua alat</a>
+    <div class="view-head"><h2>Pisah PDF</h2><p>Ambil halaman tertentu atau pecah PDF jadi beberapa file.</p></div>
+    <div class="drop" data-drop="pisah">
+      <button class="big" data-pick="pisah">Pilih file PDF</button>
+      <small>atau seret file ke sini</small><small class="lock">🔒 File tidak di-upload. Diproses langsung di perangkatmu. <a href="#privasi">Kenapa aman?</a></small>
+      <input type="file" id="in-pisah" accept="application/pdf,.pdf">
+    </div>
+    <div class="work" id="w-pisah">
+      <div class="panel">
+        <div class="row"><h4 style="margin:0" id="title-pisah"></h4><button class="ghost" data-pick="pisah">Ganti file</button></div>
+        <div class="pages" id="pages-pisah"></div>
+      </div>
+      <div class="panel side">
+        <h4>Cara memisah</h4>
+        <div class="opt">
+          <div class="seg" id="mode-pisah">
+            <button data-v="pilih" class="on">Ambil halaman tertentu<small>Klik halaman atau ketik nomornya → 1 PDF</small></button>
+            <button data-v="rentang">Pisah per rentang<small>Contoh: 1-3, 4-8 → beberapa PDF (ZIP)</small></button>
+            <button data-v="semua">Setiap halaman jadi file<small>Semua halaman dipisah (ZIP)</small></button>
+          </div>
+        </div>
+        <div class="opt" id="opt-range">
+          <label class="t" id="lbl-range">Halaman</label>
+          <input class="field" id="range-pisah" placeholder="contoh: 1-3, 5, 8-10" autocomplete="off">
+          <p class="hint" id="hint-range"></p>
+          <div style="display:flex;gap:8px;margin-top:8px" id="selbtns">
+            <button class="ghost" id="sel-all" style="flex:1">Pilih semua</button>
+            <button class="ghost" id="sel-none" style="flex:1">Kosongkan</button>
+          </div>
+        </div>
+        <button class="go" id="go-pisah">Pisah PDF →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- JPG KE PDF -->
+  <section class="view" id="v-gambar-ke-pdf">
+    <a class="back" href="#">← Semua alat</a>
+    <div class="view-head"><h2>Gambar ke PDF</h2><p>Ubah JPG, PNG, atau WEBP jadi satu file PDF.</p></div>
+    <div class="drop" data-drop="img">
+      <button class="big" data-pick="img">Pilih gambar</button>
+      <small>JPG, PNG, WEBP · bisa banyak sekaligus</small><small class="lock">🔒 File tidak di-upload. Diproses langsung di perangkatmu. <a href="#privasi">Kenapa aman?</a></small>
+      <input type="file" id="in-img" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp" multiple>
+    </div>
+    <div class="work" id="w-img">
+      <div class="panel">
+        <div class="row"><h4 style="margin:0">Urutan halaman <span class="muted" style="font-weight:500">· seret untuk mengubah urutan</span></h4><button class="ghost" data-pick="img">+ Tambah gambar</button></div>
+        <div class="files" id="list-img"></div>
+      </div>
+      <div class="panel side">
+        <h4>Pengaturan</h4>
+        <div class="opt">
+          <label class="t">Ukuran halaman</label>
+          <div class="seg cols3" id="img-size">
+            <button data-v="a4" class="on">A4</button>
+            <button data-v="letter">Letter</button>
+            <button data-v="fit">Ikut gambar</button>
+          </div>
+        </div>
+        <div class="opt" id="opt-orient">
+          <label class="t">Orientasi</label>
+          <div class="seg cols3" id="img-orient">
+            <button data-v="auto" class="on">Otomatis</button>
+            <button data-v="p">Potret</button>
+            <button data-v="l">Lanskap</button>
+          </div>
+        </div>
+        <div class="opt">
+          <label class="t">Margin</label>
+          <div class="seg cols3" id="img-margin">
+            <button data-v="0" class="on">Tanpa</button>
+            <button data-v="20">Kecil</button>
+            <button data-v="42">Besar</button>
+          </div>
+        </div>
+        <button class="go" id="go-img">Buat PDF →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PDF KE JPG -->
+  <section class="view" id="v-pdf-ke-jpg">
+    <a class="back" href="#">← Semua alat</a>
+    <div class="view-head"><h2>PDF ke JPG</h2><p>Ubah setiap halaman PDF jadi gambar JPG.</p></div>
+    <div class="drop" data-drop="jpg">
+      <button class="big" data-pick="jpg">Pilih file PDF</button>
+      <small>atau seret file ke sini</small><small class="lock">🔒 File tidak di-upload. Diproses langsung di perangkatmu. <a href="#privasi">Kenapa aman?</a></small>
+      <input type="file" id="in-jpg" accept="application/pdf,.pdf">
+    </div>
+    <div class="work" id="w-jpg">
+      <div class="panel">
+        <div class="row"><h4 style="margin:0" id="title-jpg"></h4><button class="ghost" data-pick="jpg">Ganti file</button></div>
+        <div class="pages nosel" id="pages-jpg"></div>
+      </div>
+      <div class="panel side">
+        <h4>Pengaturan</h4>
+        <div class="opt">
+          <label class="t">Kualitas gambar</label>
+          <div class="seg" id="jpg-q">
+            <button data-v="100">Standar<small>100 dpi · file kecil, cocok untuk WhatsApp</small></button>
+            <button data-v="150" class="on">Bagus<small>150 dpi · seimbang</small></button>
+            <button data-v="300">Tinggi<small>300 dpi · tajam, untuk cetak</small></button>
+          </div>
+        </div>
+        <div class="opt">
+          <label class="t">Halaman (opsional)</label>
+          <input class="field" id="range-jpg" placeholder="kosongkan = semua halaman" autocomplete="off">
+          <p class="hint" id="hint-jpg"></p>
+        </div>
+        <button class="go" id="go-jpg">Ubah ke JPG →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- KOMPRES -->
+  <section class="view" id="v-kompres">
+    <a class="back" href="#">← Semua alat</a>
+    <div class="view-head"><h2>Kompres PDF</h2><p>Perkecil ukuran PDF supaya gampang dikirim.</p></div>
+    <div class="drop" data-drop="zip">
+      <button class="big" data-pick="zip">Pilih file PDF</button>
+      <small>atau seret file ke sini</small><small class="lock">🔒 File tidak di-upload. Diproses langsung di perangkatmu. <a href="#privasi">Kenapa aman?</a></small>
+      <input type="file" id="in-zip" accept="application/pdf,.pdf">
+    </div>
+    <div class="work" id="w-zip">
+      <div class="panel">
+        <div class="row"><h4 style="margin:0" id="title-zip"></h4><button class="ghost" data-pick="zip">Ganti file</button></div>
+        <div class="pages nosel" id="pages-zip"></div>
+      </div>
+      <div class="panel side">
+        <h4>Tingkat kompresi</h4>
+        <div class="opt">
+          <div class="seg" id="zip-level">
+            <button data-v="ringan">Ringan<small>Kualitas hampir sama dengan aslinya, cocok untuk dicetak</small></button>
+            <button data-v="sedang" class="on">Sedang (disarankan)<small>Hemat besar, tetap tajam di layar</small></button>
+            <button data-v="kuat">Kuat<small>Lebih kecil, gambar agak buram</small></button>
+            <button data-v="ekstrem">Ekstrem<small>Paling kecil. Halaman jadi gambar, teks tidak bisa dicopy</small></button>
+          </div>
+          <div class="note" id="zip-note" style="display:none">Mode Ekstrem mengubah setiap halaman jadi gambar. Cocok untuk hasil scan atau dokumen yang cuma dibaca.</div>
+          <p class="hint" id="zip-engine-hint">🔒 Teks tetap bisa diblok dan dicopy. Saat pertama dipakai, browser mengunduh mesin kompres (±11 MB) sekali saja.</p>
+        </div>
+        <button class="go" id="go-zip">Kompres PDF →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- OFFICE KE PDF (server) -->
+  <section class="view" id="v-office">
+    <a class="back" href="#">← Semua alat</a>
+    <div class="view-head"><h2 id="office-title">Word ke PDF</h2><p id="office-desc"></p></div>
+    <div class="srv-off note" style="max-width:720px;margin:0 auto 16px">Server PDFku sedang tidak bisa dihubungi, jadi fitur ini belum bisa dipakai. Coba lagi beberapa saat lagi.</div>
+    <div class="drop" data-drop="office">
+      <button class="big" data-pick="office" id="office-pick">Pilih file Word</button>
+      <small>atau seret file ke sini · bisa banyak sekaligus</small><small class="cloud">☁️ File di-upload ke server PDFku lewat koneksi terenkripsi, diubah ke PDF, lalu langsung dihapus. <a href="#privasi">Detail</a></small>
+      <input type="file" id="in-office" multiple>
+    </div>
+    <div class="work" id="w-office">
+      <div class="panel">
+        <div class="row"><h4 style="margin:0">File yang akan diubah</h4><button class="ghost" data-pick="office">+ Tambah file</button></div>
+        <div id="list-office"></div>
+      </div>
+      <div class="panel side">
+        <h4>Ubah ke PDF</h4>
+        <p class="muted" style="font-size:14px;margin:0 0 16px" id="sum-office"></p>
+        <button class="go" id="go-office">Ubah ke PDF →</button>
+        <div class="note cloudnote">☁️ Diproses di server lalu langsung dihapus. Tidak disimpan dan tidak dilihat siapa pun.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRIVASI -->
+  <section class="view" id="v-privasi">
+    <a class="back" href="#">← Semua alat</a>
+    <div class="view-head"><h2>Privasi, Keamanan &amp; Syarat</h2><p>Penjelasan jujur tentang apa yang terjadi pada file kamu.</p></div>
+    <div class="legal">
+      <div class="tldr">
+        <h3>Singkatnya</h3>
+        <ul class="nosrv-only">
+          <li>Semua alat memproses file di perangkatmu sendiri. File tidak pernah di-upload ke server mana pun.</li>
+          <li>Kami tidak menyimpan, membaca, atau menyalin file kamu.</li>
+          <li>Tidak perlu daftar, tidak ada login, tidak ada cookie pelacak.</li>
+          <li>Begitu tab ditutup, semua data hilang dari memori perangkatmu.</li>
+        </ul>
+        <ul class="srv-only">
+          <li>Alat bertanda 🔒 memproses file di perangkatmu sendiri. File tidak pernah di-upload.</li>
+          <li>Alat bertanda ☁️ mengirim file ke server PDFku lewat koneksi terenkripsi. File langsung dihapus begitu hasilnya dikirim.</li>
+          <li>Kami tidak menyimpan, membaca, atau memakai isi file kamu untuk apa pun.</li>
+          <li>Tidak perlu daftar, tidak ada login, tidak ada cookie pelacak.</li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h3>Bagaimana PDFku bekerja</h3>
+        <p>Kebanyakan situs PDF meng-upload file ke server mereka, memprosesnya di sana, lalu mengirim hasilnya kembali. <span class="nosrv-only">PDFku tidak begitu.</span><span class="srv-only">Sebagian besar alat PDFku tidak begitu.</span></p>
+        <p>Saat kamu membuka PDFku, browser mengunduh aplikasinya, yaitu kode JavaScript dan mesin pengolah PDF. Setelah itu, untuk alat 🔒:</p>
+        <ol>
+          <li>File yang kamu pilih dibaca oleh browser ke memori perangkatmu sendiri.</li>
+          <li>Gabung, pisah, kompres, dan konversi dikerjakan oleh prosesor perangkatmu.</li>
+          <li>Hasilnya dibuat di perangkatmu, lalu disimpan ke folder unduhan saat kamu menekan <b>Unduh</b>.</li>
+        </ol>
+        <p>Tidak ada satu langkah pun yang mengirim isi file ke internet. <span class="nosrv-only">Server kami hanya menyajikan halaman web dan tidak pernah menerima file.</span></p>
+        <div class="srv-only">
+          <p><b>Untuk alat ☁️</b> (Word, Excel, dan PowerPoint ke PDF), software yang dibutuhkan terlalu berat untuk berjalan di browser, jadi:</p>
+          <ol>
+            <li>File dikirim ke server PDFku lewat HTTPS (terenkripsi).</li>
+            <li>Setiap file diproses di folder sementara yang terpisah dari file orang lain.</li>
+            <li><b>Begitu hasilnya selesai dikirim ke kamu, file asli dan hasilnya langsung dihapus dari server.</b> Kalau koneksimu putus di tengah jalan, sisa file dihapus otomatis paling lambat dalam 15 menit.</li>
+            <li>Tidak ada salinan, cadangan, atau arsip. Nama dan isi file tidak dicatat di log.</li>
+          </ol>
+          <p>Kalau dokumenmu sangat rahasia, pakai alat 🔒.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Data yang tidak kami kumpulkan</h3>
+        <ul>
+          <li><b>Isi file:</b> tidak disimpan, tidak dilihat siapa pun, dan tidak dipakai untuk melatih AI atau keperluan lain.</li>
+          <li><b>Data pribadi:</b> kami tidak meminta nama, email, atau nomor HP.</li>
+          <li><b>Pelacakan:</b> tidak ada cookie, Google Analytics, piksel iklan, atau pelacak lain.</li>
+          <li><b>Pihak ketiga:</b> semua kode, font, dan mesin pengolah PDF di-host di situs PDFku sendiri. Halaman ini tidak memuat apa pun dari Google, CDN, atau layanan lain.</li>
+        </ul>
+        <p>Seperti semua situs web, penyedia hosting bisa mencatat log akses standar, yaitu alamat IP, waktu kunjungan, jenis browser, dan halaman yang dibuka. Log ini dipakai untuk keamanan dan <b>tidak berisi nama file atau isi dokumen kamu</b>.</p>
+      </div>
+
+      <div class="panel">
+        <h3>Pengaman teknis</h3>
+        <ul>
+          <li><b>Content Security Policy (CSP):</b> browser hanya mengizinkan halaman ini terhubung ke situs PDFku sendiri. Kode mana pun yang mencoba mengirim data ke tempat lain akan diblokir oleh browser.</li>
+          <li><b>Alat 🔒 tidak mengirim file sama sekali.</b> Satu-satunya yang diunduh dari situs PDFku adalah aplikasinya sendiri, termasuk mesin kompres saat pertama kali dipakai.</li>
+          <li><b>HTTPS:</b> semua koneksi terenkripsi.</li>
+          <li><b>Tanpa akses perangkat:</b> PDFku tidak meminta akses kamera, mikrofon, lokasi, atau kontak.</li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h3>Buktikan sendiri</h3>
+        <ol>
+          <li><b>Mode pesawat:</b> buka PDFku dan pakai alat Kompres sekali supaya mesinnya termuat. Lalu matikan internet atau Wi-Fi, dan proses file seperti biasa. Semua alat 🔒 tetap berjalan.</li>
+          <li><b>Developer Tools:</b> di komputer, tekan <code>F12</code> lalu buka tab <b>Network</b>. Proses sebuah file dengan alat 🔒. Tidak ada data yang dikirim keluar.</li>
+        </ol>
+      </div>
+
+      <div class="panel">
+        <h3>Syarat penggunaan</h3>
+        <ul>
+          <li>PDFku gratis dan disediakan apa adanya, tanpa jaminan bahwa hasilnya selalu sempurna untuk setiap file.</li>
+          <li>Simpan selalu salinan file aslimu. Hasil proses adalah file baru, dan file asli tidak diubah.</li>
+          <li>Gunakan PDFku hanya untuk file yang berhak kamu olah. Tanggung jawab atas isi file ada pada pengguna.</li>
+          <li>Kecepatan dan batas ukuran file bergantung pada memori perangkatmu. File sangat besar paling lancar diproses di komputer.</li>
+          <li class="srv-only">Alat ☁️ punya batas ukuran file dan jumlah pemakaian. Hasil konversi Word/Excel/PowerPoint bisa sedikit berbeda dari aslinya, terutama jika dokumen memakai font khusus.</li>
+          <li>PDF yang dikunci dengan kata sandi belum didukung.</li>
+          <li>Kami tidak bertanggung jawab atas kerugian yang timbul dari penggunaan layanan ini.</li>
+          <li>Kebijakan ini bisa diperbarui. Kalau suatu saat kami menambah iklan, analitik, atau mengubah cara file diproses, halaman ini akan diperbarui lebih dulu.</li>
+        </ul>
+        <p id="contact-line" style="display:none">Pertanyaan soal privasi: <a id="contact-mail" href="#"></a></p>
+      </div>
+
+      <div class="panel">
+        <h3>Perangkat lunak open source</h3>
+        <p>PDFku dibangun di atas perangkat lunak open source berikut. Terima kasih kepada para pembuatnya.</p>
+        <ul>
+          <li><b>Ghostscript</b> (mesin kompres, versi WebAssembly) dari Artifex Software. Lisensi AGPL-3.0. Kode sumber: <a href="https://github.com/ArtifexSoftware/ghostpdl">github.com/ArtifexSoftware/ghostpdl</a>, versi WebAssembly: <a href="https://github.com/okathira/ghostpdl-wasm">github.com/okathira/ghostpdl-wasm</a>. Dipakai tanpa modifikasi.</li>
+          <li><b>PDF.js</b> dari Mozilla. Lisensi Apache-2.0.</li>
+          <li><b>pdf-lib</b>. Lisensi MIT.</li>
+          <li><b>JSZip</b>. Lisensi MIT.</li>
+          <li><b>Plus Jakarta Sans</b> (font). Lisensi SIL Open Font License.</li>
+        </ul>
+        <p id="source-line" style="display:none">Kode sumber PDFku: <a id="source-link" href="#"></a></p>
+      </div>
+      <p class="eff">Berlaku sejak 12 November 2026</p>
+    </div>
+  </section>
+
+</main>
+
+<footer><div class="wrap">PDFku · <span class="nosrv-only">Semua file diproses di perangkatmu, tidak ada yang di-upload.</span><span class="srv-only">🔒 = diproses di perangkatmu, tanpa upload · ☁️ = diproses di server lalu langsung dihapus</span> · <a href="#privasi">Privasi, Keamanan &amp; Syarat Penggunaan</a></div></footer>
+
+<div class="overlay" id="ov">
+  <div class="ov-box" id="ov-box"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
