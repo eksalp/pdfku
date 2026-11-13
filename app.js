@@ -77,7 +77,7 @@ TOOLS.forEach(t => {
 });
 window.addEventListener("hashchange", route);
 document.body.classList.toggle("no-server", !API_BASE);
-if(SOURCE_URL){ const l=$("#source-link"); l.textContent=SOURCE_URL; l.href=SOURCE_URL; $("#source-line").style.display=""; }
+if(SOURCE_URL && $("#source-link")){ const l=$("#source-link"); l.textContent=SOURCE_URL; l.href=SOURCE_URL; $("#source-line").style.display=""; }
 if(CONTACT_EMAIL){ const m=$("#contact-mail"); m.textContent=CONTACT_EMAIL; m.href="mailto:"+CONTACT_EMAIL; $("#contact-line").style.display=""; }
 
 let toastT;

@@ -302,8 +302,11 @@ body.server-down [data-drop="office"]{opacity:.5;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%)}
 
 /* ---------- legal ---------- */
-.legal{max-width:720px}
-.legal .panel{padding:var(--space-6);margin-bottom:var(--space-4)}
+.legal{columns:2;column-gap:var(--space-4)}
+.legal > *{break-inside:avoid}
+.legal .tldr,.legal .eff{column-span:all}
+@media (max-width:860px){ .legal{columns:1} }
+.legal .panel{padding:var(--space-6);margin:0 0 var(--space-4);display:inline-block;width:100%}
 .legal h3{font-size:var(--text-md);font-weight:600;margin-bottom:var(--space-3)}
 .legal p,.legal li{color:var(--color-ink-2);font-size:var(--text-base);line-height:1.65}
 .legal p{margin:0 0 var(--space-3)}
@@ -655,14 +658,6 @@ footer a:hover{color:var(--color-ink);text-decoration:underline;text-underline-o
       </div>
 
       <div class="panel">
-        <h3>Buktikan sendiri</h3>
-        <ol>
-          <li><b>Mode pesawat:</b> buka PDFku dan pakai alat Kompres sekali supaya mesinnya termuat. Lalu matikan internet atau Wi-Fi, dan proses file seperti biasa. Semua alat <span class="mk">lokal</span> tetap berjalan.</li>
-          <li><b>Developer Tools:</b> di komputer, tekan <code>F12</code> lalu buka tab <b>Network</b>. Proses sebuah file dengan alat <span class="mk">lokal</span>. Tidak ada data yang dikirim keluar.</li>
-        </ol>
-      </div>
-
-      <div class="panel">
         <h3>Syarat penggunaan</h3>
         <ul>
           <li>PDFku gratis dan disediakan apa adanya, tanpa jaminan bahwa hasilnya selalu sempurna untuk setiap file.</li>
@@ -677,18 +672,6 @@ footer a:hover{color:var(--color-ink);text-decoration:underline;text-underline-o
         <p id="contact-line" style="display:none">Pertanyaan soal privasi: <a id="contact-mail" href="#"></a></p>
       </div>
 
-      <div class="panel">
-        <h3>Perangkat lunak open source</h3>
-        <p>PDFku dibangun di atas perangkat lunak open source berikut. Terima kasih kepada para pembuatnya.</p>
-        <ul>
-          <li><b>Ghostscript</b> (mesin kompres, versi WebAssembly) dari Artifex Software. Lisensi AGPL-3.0. Kode sumber: <a href="https://github.com/ArtifexSoftware/ghostpdl">github.com/ArtifexSoftware/ghostpdl</a>, versi WebAssembly: <a href="https://github.com/okathira/ghostpdl-wasm">github.com/okathira/ghostpdl-wasm</a>. Dipakai tanpa modifikasi.</li>
-          <li><b>PDF.js</b> dari Mozilla. Lisensi Apache-2.0.</li>
-          <li><b>pdf-lib</b>. Lisensi MIT.</li>
-          <li><b>JSZip</b>. Lisensi MIT.</li>
-          <li><b>Plus Jakarta Sans</b> (font). Lisensi SIL Open Font License.</li>
-        </ul>
-        <p id="source-line" style="display:none">Kode sumber PDFku: <a id="source-link" href="#"></a></p>
-      </div>
       <p class="eff">Berlaku sejak 12 November 2026</p>
     </div>
   </section>
