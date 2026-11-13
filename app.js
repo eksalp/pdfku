@@ -84,8 +84,38 @@ let toastT;
 function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("on"),3200); }
 
 const ov = $("#ov"), ovBox = $("#ov-box");
-function showProgress(title){ ovBox.innerHTML = `<h3>${title}</h3><p class="muted" id="ov-msg">Menyiapkan…</p><div class="bar"><i id="ov-bar"></i></div>`; ov.classList.add("on"); }
-function progress(frac, msg){ const b=$("#ov-bar"); if(b) b.style.width = Math.round(Math.max(0,Math.min(1,frac))*100)+"%"; if(msg){ const m=$("#ov-msg"); if(m) m.textContent=msg; } }
+function showProgress(title){
+  ovBox.innerHTML = `<div class="ld"><span class="spin" aria-hidden="true"></span><h3>${esc(title)}</h3></div>
+    <div class="pct" id="ov-pct" aria-live="polite">0%</div>
+    <div class="bar"><i id="ov-bar"></i></div><p id="ov-msg">Menyiapkan…</p>`;
+  ov.classList.add("on");
+}
+function progress(frac, msg){
+  const p = Math.round(Math.max(0, Math.min(1, frac)) * 100);
+  const b = $("#ov-bar"); if(b) b.style.width = p + "%";
+  const t = $("#ov-pct"); if(t) t.textContent = p + "%";
+  if(msg){ const m = $("#ov-msg"); if(m) m.textContent = msg; }
+}
+/* buka file dengan progres nyata (FileReader melaporkan byte yang sudah terbaca) */
+function readFileProgress(file, onFrac){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onprogress = e => { if(e.lengthComputable) onFrac(e.loaded / e.total); };
+    r.onload = () => resolve(new Uint8Array(r.result));
+    r.onerror = () => reject(new Error("File tidak bisa dibaca."));
+    r.readAsArrayBuffer(file);
+  });
+}
+// from..to = bagian bilah progres yang dipakai untuk file ini (supaya banyak file bisa berbagi satu bilah)
+async function openPdf(file, from = 0, to = 1){
+  const span = to - from;
+  const bytes = await readFileProgress(file, fr => progress(from + span*0.7*fr, `Membaca ${file.name} · ${fmtSize(Math.round(file.size*fr))} dari ${fmtSize(file.size)}`));
+  progress(from + span*0.75, `Membaca struktur PDF…`); await tick();
+  const pdf = await loadPdfJs(bytes);
+  progress(from + span*0.9, `Menyiapkan pratinjau…`);
+  return pdf;
+}
+async function loadDone(){ progress(1, "Siap"); await new Promise(r => setTimeout(r, 180)); hideOv(); }
 const tick = () => new Promise(r => setTimeout(r, 0));
 function hideOv(){ document.getElementById("ov").classList.remove("on"); }
 function showResult({title, name, blob, extra=""}){
@@ -445,22 +475,23 @@ handlers.gabung = async (fs) => {
   if(!pdfs.length) return;
   const total = G.files.reduce((s,f)=>s+f.size,0) + pdfs.reduce((s,f)=>s+f.size,0);
   if(!(await sizeOk(total))) return;
+  showProgress(pdfs.length === 1 ? "Membuka PDF" : `Membuka ${pdfs.length} PDF`);
+  const bytesTotal = pdfs.reduce((t,f) => t + f.size, 0) || 1;
+  let done = 0;
+  // satu file per waktu, supaya beberapa PDF besar tidak memenuhi memori sekaligus
   for(const f of pdfs){
     const item = { id: ++uid, name: f.name, size: f.size, file: f, pages: null, thumb: null, rot: 0 };
     G.files.push(item);
-    // one file at a time so a batch of big PDFs never sits in memory together
-    G.queue = G.queue.then(async () => {
-      if(!G.files.includes(item)) return;
-      let pdf;
-      try{
-        pdf = await loadPdfJs(new Uint8Array(await f.arrayBuffer()));
-        item.pages = pdf.numPages;
-        item.thumb = (await renderPage(pdf, 1, {width: 260})).canvas;
-      }catch(e){ item.pages = -1; }
-      finally{ if(pdf) pdf.destroy(); renderG(); }
-    });
+    let pdf;
+    try{
+      pdf = await openPdf(f, done/bytesTotal, (done + f.size)/bytesTotal);
+      item.pages = pdf.numPages;
+      item.thumb = (await renderPage(pdf, 1, {width: 260})).canvas;
+    }catch(e){ item.pages = -1; }
+    finally{ if(pdf) pdf.destroy(); done += f.size; }
   }
   renderG();
+  await loadDone();
 };
 function renderG(){
   showWork("gabung", G.files.length > 0);
@@ -500,14 +531,15 @@ handlers.pisah = async (fs) => {
   if(!(await sizeOk(f.size))) return;
   $("#go-pisah").disabled = true; $("#title-pisah").textContent = `Membaca ${f.name}…`;
   try{
-    const bytes = new Uint8Array(await f.arrayBuffer());
-    const pdf = await loadPdfJs(bytes);
+    showProgress("Membuka PDF");
+    const pdf = await openPdf(f);
     if(P.pdf) P.pdf.destroy(); if(P.io) P.io.disconnect();
     Object.assign(P, {file:f, pdf, n:pdf.numPages, sel:new Set(), rot:new Array(pdf.numPages).fill(0)});
     $("#title-pisah").textContent = `${f.name} · ${pdf.numPages} halaman`;
     showWork("pisah", true);
     P.io = buildPageGrid($("#pages-pisah"), pdf, {selectable:true, rot:{get:n => P.rot[n-1], set:(n,d) => P.rot[n-1] = d}, onToggle:(n)=>{ if(getMode()!=="pilih") return; P.sel.has(n)?P.sel.delete(n):P.sel.add(n); $("#range-pisah").value = rangesString(P.sel); syncPisah(); }});
     $("#range-pisah").value = ""; updatePisahMode(getMode());
+    await loadDone();
   }catch(e){ showError(e.message); if(P.file){ $("#title-pisah").textContent = `${P.file.name} · ${P.n} halaman`; syncPisah(); } }
 };
 function updatePisahMode(m){
@@ -629,13 +661,15 @@ handlers.jpg = async (fs) => {
   if(!(await sizeOk(f.size))) return;
   $("#go-jpg").disabled = true; $("#title-jpg").textContent = `Membaca ${f.name}…`;
   try{
-    const bytes = new Uint8Array(await f.arrayBuffer()); const pdf = await loadPdfJs(bytes);
+    showProgress("Membuka PDF");
+    const pdf = await openPdf(f);
     if(J.pdf) J.pdf.destroy(); if(J.io) J.io.disconnect();
     Object.assign(J, {file:f, pdf, rot:new Array(pdf.numPages).fill(0)});
     $("#title-jpg").textContent = `${f.name} · ${pdf.numPages} halaman`;
     showWork("jpg", true);
     J.io = buildPageGrid($("#pages-jpg"), pdf, {selectable:false, rot:{get:n => J.rot[n-1], set:(n,d) => J.rot[n-1] = d}});
     $("#range-jpg").value=""; syncJ();
+    await loadDone();
   }catch(e){ showError(e.message); if(J.file){ $("#title-jpg").textContent = `${J.file.name} · ${J.pdf.numPages} halaman`; syncJ(); } }
 };
 function syncJ(){ const {ranges,error}=parseRanges($("#range-jpg").value, J.pdf?J.pdf.numPages:0); const h=$("#hint-jpg"); h.classList.toggle("err",!!error); const n = ranges.length ? pagesFromRanges(ranges).length : (J.pdf?J.pdf.numPages:0); h.textContent = error || `${n} gambar akan dibuat`; $("#go-jpg").disabled = !!error; }
@@ -679,12 +713,14 @@ handlers.zip = async (fs) => {
   if(!(await sizeOk(f.size))) return;
   $("#go-zip").disabled = true; $("#title-zip").textContent = `Membaca ${f.name}…`;
   try{
-    const bytes = new Uint8Array(await f.arrayBuffer()); const pdf = await loadPdfJs(bytes);
+    showProgress("Membuka PDF");
+    const pdf = await openPdf(f);
     if(K.pdf) K.pdf.destroy(); if(K.io) K.io.disconnect();
     Object.assign(K, {file:f, pdf, rot:new Array(pdf.numPages).fill(0)});
     $("#title-zip").textContent = `${f.name} · ${pdf.numPages} hal · ${fmtSize(f.size)}`;
     showWork("zip", true);
     K.io = buildPageGrid($("#pages-zip"), pdf, {selectable:false, rot:{get:n => K.rot[n-1], set:(n,d) => K.rot[n-1] = d}});
+    await loadDone();
   }catch(e){ showError(e.message); if(K.file) $("#title-zip").textContent = `${K.file.name} · ${K.pdf.numPages} hal · ${fmtSize(K.file.size)}`; }
   finally{ $("#go-zip").disabled = !K.file; }
 };
