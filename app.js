@@ -51,7 +51,9 @@ const API_BASE = "";
 const ACTIVE = TOOLS.filter(t => API_BASE || t.where !== "server");
 
 /* ---------- shell ---------- */
-$("#toolgrid").innerHTML = ACTIVE.map(t => `<a class="tool-card" href="#${t.id}" data-tone="${t.tone}"><div class="ic">${t.icon}</div><h3>${t.title}${t.where==="server" ? ' <span class="mk mk-srv">server</span>' : ""}</h3><p>${t.desc}</p><span class="sig">${t.sig}</span>${ARROW}</a>`).join("");
+// kolom = jumlah alat (maks 6), supaya tidak ada kartu yang turun sendirian
+{ const n = ACTIVE.length; $("#toolgrid").style.setProperty("--cols", n <= 6 ? n : (n % 3 === 0 ? 3 : n % 4 === 0 ? 4 : Math.ceil(n/2))); }
+$("#toolgrid").innerHTML = ACTIVE.map(t => `<a class="tool-card" href="#${t.id}" data-tone="${t.tone}"><div class="ic">${t.icon}</div><h3>${t.title}${t.where==="server" ? ' <span class="mk mk-srv">server</span>' : ""}</h3><p>${t.desc}</p></a>`).join("");
 $("#topnav").innerHTML = ACTIVE.map(t => `<a href="#${t.id}" data-id="${t.id}">${t.title}</a>`).join("");
 
 function route(){
