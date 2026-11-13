@@ -6,8 +6,8 @@
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PDFku — Alat PDF Gratis di Browser</title>
-<meta name="description" content="Gabung, pisah, kompres PDF, dan ubah gambar ke PDF gratis. File diproses di perangkatmu, tidak di-upload ke server.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%276%27 fill=%27%231f3fd1%27/%3E%3Cpath d=%27M11 8h7l4 4v12H11z%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272.4%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<meta name="description" content="Gabung, pisah, putar, kompres PDF, dan ubah gambar ke PDF gratis. File diproses di perangkatmu, tidak di-upload ke server.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"%3E%3Crect width="32" height="32" rx="8" fill="%231f45d6"/%3E%3Cpath d="M10 7.5h8.5l5 5V23a1.5 1.5 0 0 1-1.5 1.5H10A1.5 1.5 0 0 1 8.5 23V9A1.5 1.5 0 0 1 10 7.5z" fill="%23fff"/%3E%3Cpath d="M18.5 7.5v3.5a1.5 1.5 0 0 0 1.5 1.5h3.5z" fill="%231f45d6" opacity=".35"/%3E%3Cpath d="M12 16.5h7M12 20h4.5" stroke="%231f45d6" stroke-width="2" stroke-linecap="round"/%3E%3C/svg%3E">
 <link rel="stylesheet" href="lib/fonts.css">
 <script src="lib/pdf-lib.min.js"></script>
 <script src="lib/pdf.min.js"></script>
@@ -40,6 +40,17 @@
   --color-err: oklch(50% 0.19 27);
   --color-scrim: oklch(97.6% 0.004 255 / 0.9);
   --color-thumb-shadow: oklch(21% 0.02 260 / 0.08);
+
+  /* warna khas alat — L/C seragam, hanya hue yang beda, supaya tetap kalem */
+  --tone-merge: oklch(50% 0.17 268);   --tone-merge-wash: oklch(95.5% 0.03 268);
+  --tone-rotate: oklch(52% 0.11 195);  --tone-rotate-wash: oklch(95.5% 0.03 195);
+  --tone-split: oklch(50% 0.16 305);   --tone-split-wash: oklch(95.5% 0.03 305);
+  --tone-compress: oklch(50% 0.13 150);--tone-compress-wash: oklch(95.5% 0.035 150);
+  --tone-img: oklch(56% 0.13 70);      --tone-img-wash: oklch(96% 0.04 80);
+  --tone-jpg: oklch(53% 0.17 20);      --tone-jpg-wash: oklch(95.5% 0.03 20);
+  --tone-word: oklch(48% 0.15 255);    --tone-word-wash: oklch(95.5% 0.03 255);
+  --tone-excel: oklch(48% 0.12 155);   --tone-excel-wash: oklch(95.5% 0.035 155);
+  --tone-ppt: oklch(55% 0.16 40);      --tone-ppt-wash: oklch(95.5% 0.035 40);
 
   --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -74,7 +85,9 @@ input[type=file]{display:none}
 header.top{position:sticky;top:0;z-index:20;background:var(--color-paper);border-bottom:var(--rule)}
 header.top .wrap{display:flex;align-items:center;gap:var(--space-6);height:56px}
 .logo{display:flex;align-items:center;gap:var(--space-2);text-decoration:none;font-weight:600;font-size:var(--text-md);letter-spacing:-.01em;flex:none}
-.logo .mark{width:22px;height:22px;border-radius:var(--radius-sm);background:var(--color-accent);color:var(--color-accent-ink);display:grid;place-items:center}
+.logo .mark{display:block;width:28px;height:28px;color:var(--color-accent);flex:none}
+.logo .mark svg{display:block}
+.logo .wm{font-size:1.125rem;font-weight:700;letter-spacing:-.02em}
 .logo .ku{color:var(--color-accent)}
 nav.tools-nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
 nav.tools-nav::-webkit-scrollbar{display:none}
@@ -129,20 +142,41 @@ nav.tools-nav a.on{color:var(--color-ink);background:var(--color-sunk);box-shado
 .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-4);margin:var(--space-12) 0 var(--space-4);flex-wrap:wrap}
 .sec-head h2{font-size:var(--text-lg);font-weight:600;letter-spacing:-.01em}
 .sec-head p{margin:0;color:var(--color-ink-3);font-size:var(--text-sm)}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border:var(--rule);border-radius:var(--radius-lg);background:var(--color-panel);overflow:hidden}
-.tool-card:last-child:nth-child(3n+2){grid-column:span 2}
-.tool-card:last-child:nth-child(3n+1){grid-column:span 3}
-@media (max-width:900px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr))} .tool-card:last-child{grid-column:auto} .tool-card:last-child:nth-child(odd){grid-column:span 2} }
-@media (max-width:560px){ .grid{grid-template-columns:minmax(0,1fr)} .tool-card:last-child:nth-child(odd){grid-column:auto} nav.tools-nav{display:none} .top-priv{margin-left:auto} }
-.tool-card{position:relative;display:grid;align-content:start;grid-template-columns:auto minmax(0,1fr);gap:var(--space-1) var(--space-4);padding:var(--space-6);text-decoration:none;border-right:var(--rule);border-bottom:var(--rule);margin:0 -1px -1px 0;transition:background var(--dur-fast) var(--ease-out)}
-.tool-card:hover{background:var(--color-sunk)}
-.tool-card .ic{grid-row:span 3;width:40px;height:40px;border-radius:var(--radius);border:var(--rule-strong);display:grid;place-items:center;color:var(--color-ink);background:var(--color-panel);transition:border-color var(--dur-fast) var(--ease-out),color var(--dur-fast) var(--ease-out)}
-.tool-card:hover .ic{border-color:var(--color-accent);color:var(--color-accent)}
-.tool-card h3{font-size:var(--text-md);font-weight:600;letter-spacing:-.005em;display:flex;align-items:center;gap:var(--space-2)}
-.tool-card p{margin:0;color:var(--color-ink-2);font-size:var(--text-sm);line-height:1.45}
-.tool-card .sig{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-ink-3);margin-top:var(--space-2);letter-spacing:.01em}
-.tool-card .go-arrow{position:absolute;top:var(--space-6);right:var(--space-6);color:var(--color-ink-3);opacity:0;transform:translateX(-4px);transition:opacity var(--dur-fast) var(--ease-out),transform var(--dur-fast) var(--ease-out)}
-.tool-card:hover .go-arrow{opacity:1;transform:none;color:var(--color-accent)}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-4)}
+@media (max-width:900px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:560px){
+  nav.tools-nav{display:none} .top-priv{margin-left:auto}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-3)}
+  .tool-card{padding:var(--space-4);gap:0;border-radius:12px}
+  .tool-card .ic{width:44px;height:44px;border-radius:12px;margin-bottom:var(--space-3)}
+  .tool-card .ic svg{width:24px;height:24px}
+  .tool-card h3{font-size:var(--text-base);flex-wrap:wrap;row-gap:4px}
+  .tool-card p,.tool-card .sig,.tool-card .go-arrow{display:none}
+}
+.tool-card{--tone:var(--color-accent);--tone-wash:var(--color-accent-wash);position:relative;display:flex;flex-direction:column;gap:var(--space-2);padding:var(--space-6);background:var(--color-panel);border:var(--rule);border-radius:14px;text-decoration:none;transition:transform var(--dur) var(--ease-out),border-color var(--dur) var(--ease-out),box-shadow var(--dur) var(--ease-out)}
+.tool-card:hover{transform:translateY(-2px);border-color:var(--tone);box-shadow:0 8px 24px var(--color-thumb-shadow)}
+.tool-card:active{transform:translateY(0)}
+.ic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;flex:none;color:var(--tone);background:var(--tone-wash)}
+.ic svg{width:28px;height:28px}
+.tool-card .ic{margin-bottom:var(--space-3);transition:transform var(--dur) var(--ease-out)}
+.tool-card:hover .ic{transform:scale(1.04)}
+.tool-card h3{font-size:var(--text-md);font-weight:600;letter-spacing:-.01em;display:flex;align-items:center;gap:var(--space-2)}
+.tool-card p{margin:0;color:var(--color-ink-2);font-size:var(--text-sm);line-height:1.5}
+.tool-card .sig{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-ink-3);margin-top:auto;padding-top:var(--space-4)}
+.tool-card .go-arrow{position:absolute;top:var(--space-6);right:var(--space-6);color:var(--tone);opacity:0;transform:translateX(-4px);transition:opacity var(--dur-fast) var(--ease-out),transform var(--dur-fast) var(--ease-out)}
+.tool-card:hover .go-arrow{opacity:1;transform:none}
+/* warna khas tiap alat: ikon berwarna di atas latar tipis senada */
+[data-tone="merge"]{--tone:var(--tone-merge);--tone-wash:var(--tone-merge-wash)}
+[data-tone="rotate"]{--tone:var(--tone-rotate);--tone-wash:var(--tone-rotate-wash)}
+[data-tone="split"]{--tone:var(--tone-split);--tone-wash:var(--tone-split-wash)}
+[data-tone="compress"]{--tone:var(--tone-compress);--tone-wash:var(--tone-compress-wash)}
+[data-tone="img"]{--tone:var(--tone-img);--tone-wash:var(--tone-img-wash)}
+[data-tone="jpg"]{--tone:var(--tone-jpg);--tone-wash:var(--tone-jpg-wash)}
+[data-tone="word"]{--tone:var(--tone-word);--tone-wash:var(--tone-word-wash)}
+[data-tone="excel"]{--tone:var(--tone-excel);--tone-wash:var(--tone-excel-wash)}
+[data-tone="ppt"]{--tone:var(--tone-ppt);--tone-wash:var(--tone-ppt-wash)}
+.view-head .ic{width:48px;height:48px;border-radius:13px}
+.view-head .vh{display:flex;align-items:center;gap:var(--space-4)}
 .mk{display:inline-block;font-family:var(--font-mono);font-size:10.5px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;padding:1px 6px;border-radius:3px;background:var(--color-ok-wash);color:var(--color-ok);vertical-align:2px}
 .mk.mk-srv{background:var(--color-accent-wash);color:var(--color-accent)}
 
@@ -225,7 +259,7 @@ nav.tools-nav a.on{color:var(--color-ink);background:var(--color-sunk);box-shado
 .pg:hover{border-color:var(--color-rule-strong)}
 .pg.sel{border-color:var(--color-accent);box-shadow:0 0 0 1px var(--color-accent);background:var(--color-accent-wash)}
 .pg.sel span{color:var(--color-accent);font-weight:500}
-.pg.sel::after{content:"";position:absolute;top:10px;right:10px;width:16px;height:16px;border-radius:3px;background:var(--color-accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E") center/12px no-repeat}
+.pg.sel::after{content:"";position:absolute;top:10px;left:10px;width:16px;height:16px;border-radius:3px;background:var(--color-accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E") center/12px no-repeat}
 .pages.nosel .pg{cursor:default}
 .pages.nosel .pg.sel{border-color:var(--color-rule);box-shadow:none;background:var(--color-sunk)}
 .pages.nosel .pg.sel span{color:var(--color-ink-3);font-weight:400}
@@ -241,6 +275,17 @@ nav.tools-nav a.on{color:var(--color-ink);background:var(--color-sunk);box-shado
 .orow button{border:0;background:transparent;color:var(--color-ink-3);width:28px;height:28px;border-radius:var(--radius-sm);display:grid;place-items:center}
 .orow button:hover{background:var(--color-sunk);color:var(--color-ink)}
 
+/* putar: tombol di tiap kartu + tombol putar semua */
+.tw{position:relative;width:100%}
+.fitem .thumb,.pg .thumb{position:relative;display:block;aspect-ratio:1/1;overflow:hidden;background:transparent;box-shadow:none}
+.rmedia{position:absolute;top:50%;left:50%;max-width:none!important;max-height:none!important;transform:translate(-50%,-50%);background:var(--color-panel);box-shadow:0 1px 3px var(--color-thumb-shadow);transition:transform var(--dur) var(--ease-out)}
+.rotbtn{position:absolute;right:4px;bottom:4px;width:28px;height:28px;border-radius:var(--radius-sm);border:var(--rule-strong);background:var(--color-panel);color:var(--color-ink);display:grid;place-items:center;padding:0;box-shadow:0 1px 2px var(--color-thumb-shadow);transition:border-color var(--dur-fast) var(--ease-out),color var(--dur-fast) var(--ease-out)}
+.rotbtn:hover{border-color:var(--color-accent);color:var(--color-accent)}
+.rotbtn:active{transform:translateY(1px)}
+.tw .rdeg{position:absolute;left:4px;bottom:4px;font-family:var(--font-mono);font-size:10.5px;font-weight:500;color:var(--color-accent-ink)!important;line-height:1.5;background:var(--color-accent);border-radius:3px;padding:1px 5px;pointer-events:none}
+.tw .rdeg:empty{display:none}
+.rot-all{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-2)}
+.rot-all .ghost{gap:6px;height:36px}
 /* server availability */
 .srv-off{display:none}
 body.no-server .srv-only{display:none!important}
@@ -305,7 +350,7 @@ footer a:hover{color:var(--color-ink);text-decoration:underline;text-underline-o
 
 <header class="top">
   <div class="wrap">
-    <a class="logo" href="#"><span class="mark"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"><path d="M6 3h8l5 5v13H6z"/></svg></span><span>PDF<span class="ku">ku</span></span></a>
+    <a class="logo" href="#" aria-label="PDFku, ke beranda"><span class="mark"><svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M10 7.5h8.5l5 5V23a1.5 1.5 0 0 1-1.5 1.5H10A1.5 1.5 0 0 1 8.5 23V9A1.5 1.5 0 0 1 10 7.5z" fill="#fff"/><path d="M18.5 7.5v3.5a1.5 1.5 0 0 0 1.5 1.5h3.5z" fill="currentColor" opacity=".35"/><path d="M12 16.5h7M12 20h4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="wm">PDF<span class="ku">ku</span></span></a>
     <nav class="tools-nav" id="topnav" aria-label="Alat"></nav>
     <a class="top-priv" href="#privasi"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>Privasi</span></a>
   </div>
@@ -364,6 +409,10 @@ footer a:hover{color:var(--color-ink);text-decoration:underline;text-underline-o
             <button data-sort="za">Nama Z–A</button>
           </div>
         </div>
+        <div class="opt">
+          <label class="t">Putar semua file</label>
+          <div class="rot-all"><button class="ghost" data-rotall="gabung" data-d="-90" title="Putar semua 90° ke kiri"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v6h6"/><path d="M3.5 9A9 9 0 1 1 6 18"/></svg>Kiri</button><button class="ghost" data-rotall="gabung" data-d="90" title="Putar semua 90° ke kanan"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3v6h-6"/><path d="M20.5 9A9 9 0 1 0 18 18"/></svg>Kanan</button></div>
+        </div>
         <button class="go" id="go-gabung">Gabung PDF</button>
         <p class="hint" id="hint-gabung"></p>
       </div>
@@ -401,6 +450,10 @@ footer a:hover{color:var(--color-ink);text-decoration:underline;text-underline-o
             <button class="ghost" id="sel-all" style="flex:1">Pilih semua</button>
             <button class="ghost" id="sel-none" style="flex:1">Kosongkan</button>
           </div>
+        </div>
+        <div class="opt">
+          <label class="t">Putar semua halaman</label>
+          <div class="rot-all"><button class="ghost" data-rotall="pisah" data-d="-90" title="Putar semua 90° ke kiri"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v6h6"/><path d="M3.5 9A9 9 0 1 1 6 18"/></svg>Kiri</button><button class="ghost" data-rotall="pisah" data-d="90" title="Putar semua 90° ke kanan"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3v6h-6"/><path d="M20.5 9A9 9 0 1 0 18 18"/></svg>Kanan</button></div>
         </div>
         <button class="go" id="go-pisah">Pisah PDF</button>
       </div>
@@ -446,6 +499,10 @@ footer a:hover{color:var(--color-ink);text-decoration:underline;text-underline-o
             <button data-v="42">Besar</button>
           </div>
         </div>
+        <div class="opt">
+          <label class="t">Putar semua gambar</label>
+          <div class="rot-all"><button class="ghost" data-rotall="img" data-d="-90" title="Putar semua 90° ke kiri"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v6h6"/><path d="M3.5 9A9 9 0 1 1 6 18"/></svg>Kiri</button><button class="ghost" data-rotall="img" data-d="90" title="Putar semua 90° ke kanan"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3v6h-6"/><path d="M20.5 9A9 9 0 1 0 18 18"/></svg>Kanan</button></div>
+        </div>
         <button class="go" id="go-img">Buat PDF</button>
       </div>
     </div>
@@ -479,6 +536,10 @@ footer a:hover{color:var(--color-ink);text-decoration:underline;text-underline-o
           <input class="field" id="range-jpg" placeholder="kosong = semua halaman" autocomplete="off">
           <p class="hint" id="hint-jpg"></p>
         </div>
+        <div class="opt">
+          <label class="t">Putar semua halaman</label>
+          <div class="rot-all"><button class="ghost" data-rotall="jpg" data-d="-90" title="Putar semua 90° ke kiri"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v6h6"/><path d="M3.5 9A9 9 0 1 1 6 18"/></svg>Kiri</button><button class="ghost" data-rotall="jpg" data-d="90" title="Putar semua 90° ke kanan"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3v6h-6"/><path d="M20.5 9A9 9 0 1 0 18 18"/></svg>Kanan</button></div>
+        </div>
         <button class="go" id="go-jpg">Ubah ke JPG</button>
       </div>
     </div>
@@ -510,6 +571,10 @@ footer a:hover{color:var(--color-ink);text-decoration:underline;text-underline-o
           <div class="note" id="zip-note" style="display:none">Mode Ekstrem mengubah setiap halaman jadi gambar. Cocok untuk hasil scan atau dokumen yang cuma dibaca.</div>
           <p class="hint" id="zip-engine-hint">Saat pertama dipakai, browser mengunduh mesin kompres (±11 MB) sekali saja.</p>
         </div>
+        <div class="opt">
+          <label class="t">Putar semua halaman</label>
+          <div class="rot-all"><button class="ghost" data-rotall="zip" data-d="-90" title="Putar semua 90° ke kiri"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v6h6"/><path d="M3.5 9A9 9 0 1 1 6 18"/></svg>Kiri</button><button class="ghost" data-rotall="zip" data-d="90" title="Putar semua 90° ke kanan"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3v6h-6"/><path d="M20.5 9A9 9 0 1 0 18 18"/></svg>Kanan</button></div>
+        </div>
         <button class="go" id="go-zip">Kompres PDF</button>
       </div>
     </div>
@@ -518,7 +583,7 @@ footer a:hover{color:var(--color-ink);text-decoration:underline;text-underline-o
   <!-- OFFICE KE PDF (server) -->
   <section class="view" id="v-office">
     <a class="back" href="#">← Semua alat</a>
-    <div class="view-head"><div><h2 id="office-title">Word ke PDF</h2><p id="office-desc"></p></div></div>
+    <div class="view-head"><div class="vh"><span class="ic" id="office-ic"></span><div><h2 id="office-title">Word ke PDF</h2><p id="office-desc"></p></div></div></div>
     <div class="srv-off note" style="margin:0 0 var(--space-4)">Server PDFku sedang tidak bisa dihubungi, jadi alat ini belum bisa dipakai. Coba lagi beberapa saat lagi.</div>
     <div class="drop" data-drop="office"><div class="drop-in">
       <button class="big" data-pick="office" id="office-pick">Pilih file Word</button>

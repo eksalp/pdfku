@@ -6,11 +6,11 @@ if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = "lib/pdf.worker.mi
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
 const ICON = {
-  merge:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="10" height="13" rx="1.5"/><path d="M8 21h11a2 2 0 0 0 2-2V8"/><path d="M17 11v6M14 14h6"/></svg>',
-  split:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/><path d="M12 2v20" stroke-dasharray="2 3"/></svg>',
-  img:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>',
-  jpg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><circle cx="10" cy="13" r="1.5"/><path d="m17 19-4-4-6 6"/></svg>',
-  zip:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="m14 10 7-7"/><path d="m3 21 7-7"/></svg>',
+  merge:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="9.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="9.5" rx="1.5"/><path d="M6.75 12.5v1.5a3 3 0 0 0 3 3h4.5a3 3 0 0 0 3-3v-1.5"/><path d="M12 17v4"/><path d="M9.5 18.5 12 21l2.5-2.5"/></svg>',
+  split:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 4.5H6A1.5 1.5 0 0 0 4.5 6v12A1.5 1.5 0 0 0 6 19.5h3.5"/><path d="M14.5 4.5H18A1.5 1.5 0 0 1 19.5 6v12a1.5 1.5 0 0 1-1.5 1.5h-3.5"/><path d="M12 2.5v19" stroke-dasharray="2 2.6"/></svg>',
+  img:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="m21 15.5-4.5-4.5L7 20.5"/></svg>',
+  jpg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><circle cx="10" cy="12.5" r="1.4"/><path d="m19 18-4-4-6.5 6.5"/></svg>',
+  zip:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9.5 9.5 12 12l2.5-2.5"/><path d="M9.5 18.5 12 16l2.5 2.5"/></svg>',
   up:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m15 18-6-6 6-6"/></svg>',
   down:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m9 18 6-6-6-6"/></svg>',
   x:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6 6 18M6 6l12 12"/></svg>',
@@ -18,20 +18,23 @@ const ICON = {
 };
 ICON.doc = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>';
 ICON.sheet = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>';
+ICON.rotate = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="10" height="12.5" rx="1.5"/><path d="M4 12a8 8 0 0 1 12.5-6.6"/><path d="M17 2.5v3.6h-3.6"/></svg>';
+ICON.rotL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v6h6"/><path d="M3.5 9A9 9 0 1 1 6 18"/></svg>';
+ICON.rotR = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3v6h-6"/><path d="M20.5 9A9 9 0 1 0 18 18"/></svg>';
 ICON.slide = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M12 17v4M8 21h8"/></svg>';
 // where: "local" = di perangkat, "server" = di server, "both" = pengguna memilih
 const TOOLS = [
-  {id:"gabung", sig:"PDF ×n → PDF", title:"Gabung PDF", desc:"Satukan beberapa PDF jadi satu, urutan bebas.", icon:ICON.merge, color:"var(--c-merge)", where:"local"},
-  {id:"pisah", sig:"PDF → PDF ×n", title:"Pisah PDF", desc:"Ambil halaman tertentu atau pecah jadi beberapa file.", icon:ICON.split, color:"var(--c-split)", where:"local"},
-  {id:"kompres", sig:"PDF → PDF lebih kecil", title:"Kompres PDF", desc:"Perkecil ukuran file, teks tetap bisa dicopy.", icon:ICON.zip, color:"var(--c-zip)", where:"local"},
-  {id:"word-ke-pdf", sig:"DOC · DOCX → PDF", title:"Word ke PDF", desc:"Ubah DOC/DOCX jadi PDF, tata letak tetap rapi.", icon:ICON.doc, color:"#2b579a", where:"server",
+  {id:"gabung", tone:"merge", sig:"PDF ×n → PDF", title:"Gabung PDF", desc:"Satukan beberapa PDF jadi satu, urutan bebas.", icon:ICON.merge, color:"var(--c-merge)", where:"local"},
+  {id:"pisah", tone:"split", sig:"PDF → PDF ×n", title:"Pisah PDF", desc:"Ambil halaman tertentu atau pecah jadi beberapa file.", icon:ICON.split, color:"var(--c-split)", where:"local"},
+  {id:"kompres", tone:"compress", sig:"PDF → PDF lebih kecil", title:"Kompres PDF", desc:"Perkecil ukuran file, teks tetap bisa dicopy.", icon:ICON.zip, color:"var(--c-zip)", where:"local"},
+  {id:"word-ke-pdf", tone:"word", sig:"DOC · DOCX → PDF", title:"Word ke PDF", desc:"Ubah DOC/DOCX jadi PDF, tata letak tetap rapi.", icon:ICON.doc, color:"#2b579a", where:"server",
     office:{accept:[".doc",".docx",".odt",".rtf"], pick:"Pilih file Word", label:"DOC", lead:"Ubah dokumen Word jadi PDF. Tata letak, tabel, dan gambar tetap rapi."}},
-  {id:"excel-ke-pdf", sig:"XLS · XLSX → PDF", title:"Excel ke PDF", desc:"Ubah XLS/XLSX jadi PDF yang siap dikirim.", icon:ICON.sheet, color:"#217346", where:"server",
+  {id:"excel-ke-pdf", tone:"excel", sig:"XLS · XLSX → PDF", title:"Excel ke PDF", desc:"Ubah XLS/XLSX jadi PDF yang siap dikirim.", icon:ICON.sheet, color:"#217346", where:"server",
     office:{accept:[".xls",".xlsx",".ods",".csv"], pick:"Pilih file Excel", label:"XLS", lead:"Ubah spreadsheet Excel jadi PDF. Rumus ikut dihitung, semua sheet ikut diubah."}},
-  {id:"ppt-ke-pdf", sig:"PPT · PPTX → PDF", title:"PowerPoint ke PDF", desc:"Ubah PPT/PPTX jadi PDF untuk dibagikan.", icon:ICON.slide, color:"#c43e1c", where:"server",
+  {id:"ppt-ke-pdf", tone:"ppt", sig:"PPT · PPTX → PDF", title:"PowerPoint ke PDF", desc:"Ubah PPT/PPTX jadi PDF untuk dibagikan.", icon:ICON.slide, color:"#c43e1c", where:"server",
     office:{accept:[".ppt",".pptx",".odp"], pick:"Pilih file PowerPoint", label:"PPT", lead:"Ubah presentasi PowerPoint jadi PDF, satu slide per halaman."}},
-  {id:"gambar-ke-pdf", sig:"JPG · PNG · WEBP → PDF", title:"Gambar ke PDF", desc:"Ubah JPG, PNG, WEBP jadi satu PDF.", icon:ICON.img, color:"var(--c-img)", where:"local"},
-  {id:"pdf-ke-jpg", sig:"PDF → JPG", title:"PDF ke JPG", desc:"Ubah setiap halaman PDF jadi gambar.", icon:ICON.jpg, color:"var(--c-jpg)", where:"local"},
+  {id:"gambar-ke-pdf", tone:"img", sig:"JPG · PNG · WEBP → PDF", title:"Gambar ke PDF", desc:"Ubah JPG, PNG, WEBP jadi satu PDF.", icon:ICON.img, color:"var(--c-img)", where:"local"},
+  {id:"pdf-ke-jpg", tone:"jpg", sig:"PDF → JPG", title:"PDF ke JPG", desc:"Ubah setiap halaman PDF jadi gambar.", icon:ICON.jpg, color:"var(--c-jpg)", where:"local"},
 ];
 const ARROW = '<svg class="go-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 
@@ -48,7 +51,7 @@ const API_BASE = "";
 const ACTIVE = TOOLS.filter(t => API_BASE || t.where !== "server");
 
 /* ---------- shell ---------- */
-$("#toolgrid").innerHTML = ACTIVE.map(t => `<a class="tool-card" href="#${t.id}"><div class="ic">${t.icon}</div><h3>${t.title}${t.where==="server" ? ' <span class="mk mk-srv">server</span>' : ""}</h3><p>${t.desc}</p><span class="sig">${t.sig}</span>${ARROW}</a>`).join("");
+$("#toolgrid").innerHTML = ACTIVE.map(t => `<a class="tool-card" href="#${t.id}" data-tone="${t.tone}"><div class="ic">${t.icon}</div><h3>${t.title}${t.where==="server" ? ' <span class="mk mk-srv">server</span>' : ""}</h3><p>${t.desc}</p><span class="sig">${t.sig}</span>${ARROW}</a>`).join("");
 $("#topnav").innerHTML = ACTIVE.map(t => `<a href="#${t.id}" data-id="${t.id}">${t.title}</a>`).join("");
 
 function route(){
@@ -62,6 +65,14 @@ function route(){
   window.scrollTo(0,0);
   if (typeof hideOv === 'function') hideOv();
 }
+// logo alat di judul halaman alatnya
+TOOLS.forEach(t => {
+  const head = t.office ? null : $(`#v-${t.id} .view-head > div`);
+  if(!head) return;
+  const wrap = document.createElement("div"); wrap.className = "vh";
+  wrap.innerHTML = `<span class="ic" data-tone="${t.tone}">${t.icon}</span>`;
+  head.parentNode.insertBefore(wrap, head); wrap.appendChild(head);
+});
 window.addEventListener("hashchange", route);
 document.body.classList.toggle("no-server", !API_BASE);
 if(SOURCE_URL){ const l=$("#source-link"); l.textContent=SOURCE_URL; l.href=SOURCE_URL; $("#source-line").style.display=""; }
@@ -147,11 +158,12 @@ async function loadPdfJs(bytes){
   try { return await pdfjsLib.getDocument({data: bytes, isEvalSupported:false}).promise; }
   catch(e){ if(e && e.name==="PasswordException") throw new Error("PDF ini dilindungi kata sandi. Buka kuncinya dulu, lalu coba lagi."); throw new Error("File PDF tidak bisa dibaca. Mungkin rusak."); }
 }
-async function renderPage(pdf, n, {width, scale}){
+async function renderPage(pdf, n, {width, scale, rotate}){
   const page = await pdf.getPage(n);
-  const vp1 = page.getViewport({scale:1});
+  const rot = norm((page.rotate||0) + (rotate||0));
+  const vp1 = page.getViewport({scale:1, rotation:rot});
   const s = scale || (width / vp1.width);
-  const vp = page.getViewport({scale:s});
+  const vp = page.getViewport({scale:s, rotation:rot});
   const c = document.createElement("canvas");
   c.width = Math.max(1, Math.floor(vp.width)); c.height = Math.max(1, Math.floor(vp.height));
   const ctx = c.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height);
@@ -161,26 +173,50 @@ async function renderPage(pdf, n, {width, scale}){
 }
 const canvasBlob = (c, type, q) => new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error("Gagal membuat gambar")), type, q));
 
+/* ---------- putar (dipakai semua alat) ---------- */
+// Setiap kartu menyimpan putaran tambahan (kelipatan 90°). Thumbnail diputar dengan CSS;
+// putaran sebenarnya baru diterapkan ke file saat diproses.
+const norm = d => ((d % 360) + 360) % 360;
+const ROTBTN = `<button type="button" class="rotbtn" data-rotate title="Putar 90° ke kanan" aria-label="Putar 90° ke kanan">${ICON.rotR}</button><span class="rdeg"></span>`;
+function fitMedia(m){
+  const w = m.naturalWidth || m.width, h = m.naturalHeight || m.height;
+  m.classList.add("rmedia");
+  if(h >= w){ m.style.height = "100%"; m.style.width = "auto"; } else { m.style.width = "100%"; m.style.height = "auto"; }
+}
+function paintRotEl(el, deg){
+  if(!el) return;
+  const m = el.querySelector(".rmedia"); if(m) m.style.transform = `translate(-50%,-50%) rotate(${deg||0}deg)`;
+  const b = el.querySelector(".rdeg"); if(b) b.textContent = norm(deg||0) ? `${norm(deg)}°` : "";
+}
+const rotatePage = (p, extra) => { const r = norm(extra||0); if(r) p.setRotation(PDFLib.degrees(norm(p.getRotation().angle + r))); };
+const ROTALL = {};
+document.addEventListener("click", e => { const b = e.target.closest("[data-rotall]"); if(b && ROTALL[b.dataset.rotall]) ROTALL[b.dataset.rotall](+b.dataset.d); });
+
 /* lazy page thumbnails */
-function buildPageGrid(container, pdf, {selectable, onToggle}){
+function buildPageGrid(container, pdf, {selectable, onToggle, rot}){
   container.innerHTML = "";
   const io = new IntersectionObserver(entries => {
     entries.forEach(en => {
       if(!en.isIntersecting) return;
       const el = en.target; io.unobserve(el);
       const n = +el.dataset.n;
-      renderPage(pdf, n, {width: 150*Math.min(2, window.devicePixelRatio||1)}).then(({canvas}) => { const t=$(".thumb", el); t.innerHTML=""; t.appendChild(canvas); }).catch(()=>{});
+      renderPage(pdf, n, {width: 150*Math.min(2, window.devicePixelRatio||1)}).then(({canvas}) => { const t=$(".thumb", el); t.innerHTML=""; fitMedia(canvas); t.appendChild(canvas); if(rot) paintRotEl(el, rot.get(n)); }).catch(()=>{});
     });
   }, {root: container, rootMargin:"200px"});
   for(let n=1; n<=pdf.numPages; n++){
     const el = document.createElement("div");
     el.className = "pg"; el.dataset.n = n;
-    el.innerHTML = `<div class="thumb"></div><span>${n}</span>`;
-    if(selectable) el.onclick = () => onToggle(n, el);
+    el.innerHTML = `<div class="tw"><div class="thumb"></div>${rot ? ROTBTN : ""}</div><span>${n}</span>`;
+    el.onclick = (e) => {
+      if(rot && e.target.closest("[data-rotate]")){ rot.set(n, rot.get(n) + 90); paintRotEl(el, rot.get(n)); return; }
+      if(selectable) onToggle(n, el);
+    };
     container.appendChild(el); io.observe(el);
   }
   return io;
 }
+const repaintCards = (listEl, arr) => $$(".fitem", listEl).forEach(el => { const it = arr.find(x => x.id == el.dataset.id); if(it) paintRotEl(el, it.rot); });
+const repaintGrid = (container, get) => $$(".pg", container).forEach(el => paintRotEl(el, get(+el.dataset.n)));
 
 /* downloads: Claude artifact capability, else normal browser download */
 async function saveFile(name, blob){
@@ -239,6 +275,8 @@ function makeSortable(listEl, getArr, rerender){
     const [m]=arr.splice(from,1); arr.splice(to,0,m); rerender();
   });
   listEl.addEventListener("click", e => {
+    const rb = e.target.closest("[data-rotate]");
+    if(rb){ const el = rb.closest(".fitem"); const it = getArr().find(x => x.id == el.dataset.id); it.rot = (it.rot||0) + 90; paintRotEl(el, it.rot); return; }
     const b=e.target.closest("button[data-act]"); if(!b) return;
     const arr=getArr(); const id=b.closest(".fitem").dataset.id; const i=arr.findIndex(x=>x.id==id);
     if(b.dataset.act==="del") arr.splice(i,1);
@@ -250,7 +288,7 @@ function makeSortable(listEl, getArr, rerender){
 function fitemHTML(item, i, meta){
   return `<div class="fitem" draggable="true" data-id="${item.id}"><span class="idx">${i+1}</span>
     <div class="acts"><button data-act="up" title="Geser kiri">${ICON.up}</button><button data-act="down" title="Geser kanan">${ICON.down}</button><button data-act="del" title="Hapus">${ICON.x}</button></div>
-    <div class="thumb" data-thumb="${item.id}"></div><div class="nm" title="${esc(item.name)}">${esc(item.name)}</div><div class="meta">${meta}</div></div>`;
+    <div class="tw"><div class="thumb" data-thumb="${item.id}"></div>${ROTBTN}</div><div class="nm" title="${esc(item.name)}">${esc(item.name)}</div><div class="meta">${meta}</div></div>`;
 }
 
 /* ---------- server (fitur ☁️) ---------- */
@@ -309,6 +347,7 @@ function setOfficeTool(tool){
   if(O.tool !== tool){ O.files = []; }
   O.tool = tool;
   $("#office-title").textContent = tool.title;
+  const oic = $("#office-ic"); oic.dataset.tone = tool.tone; oic.innerHTML = tool.icon;
   $("#office-desc").textContent = tool.office.lead;
   $("#office-pick").textContent = tool.office.pick;
   $("#in-office").accept = tool.office.accept.join(",");
@@ -395,6 +434,7 @@ handlers.home = (fs) => {
   });
 };
 
+
 /* ================= GABUNG ================= */
 const G = { files: [], queue: Promise.resolve() };
 handlers.gabung = async (fs) => {
@@ -404,7 +444,7 @@ handlers.gabung = async (fs) => {
   const total = G.files.reduce((s,f)=>s+f.size,0) + pdfs.reduce((s,f)=>s+f.size,0);
   if(!(await sizeOk(total))) return;
   for(const f of pdfs){
-    const item = { id: ++uid, name: f.name, size: f.size, file: f, pages: null, thumb: null };
+    const item = { id: ++uid, name: f.name, size: f.size, file: f, pages: null, thumb: null, rot: 0 };
     G.files.push(item);
     // one file at a time so a batch of big PDFs never sits in memory together
     G.queue = G.queue.then(async () => {
@@ -424,13 +464,15 @@ function renderG(){
   showWork("gabung", G.files.length > 0);
   const list = $("#list-gabung");
   list.innerHTML = G.files.map((f,i) => fitemHTML(f, i, f.pages===-1 ? '<span style="color:#b42318">Tidak terbaca</span>' : `${f.pages ?? "…"} hal · ${fmtSize(f.size)}`)).join("");
-  G.files.forEach(f => { if(f.thumb){ const t=$(`[data-thumb="${f.id}"]`, list); const c=document.createElement("canvas"); c.width=f.thumb.width; c.height=f.thumb.height; c.getContext("2d").drawImage(f.thumb,0,0); t.appendChild(c); } });
+  G.files.forEach(f => { if(f.thumb){ const t=$(`[data-thumb="${f.id}"]`, list); const c=document.createElement("canvas"); c.width=f.thumb.width; c.height=f.thumb.height; c.getContext("2d").drawImage(f.thumb,0,0); fitMedia(c); t.appendChild(c); } });
+  repaintCards(list, G.files);
   const total = G.files.reduce((s,f)=>s+(f.pages>0?f.pages:0),0);
   $("#sum-gabung").textContent = `${G.files.length} file · ${total} halaman total`;
   $("#go-gabung").disabled = G.files.length < 2;
   $("#hint-gabung").textContent = G.files.length < 2 ? "Tambahkan minimal 2 file PDF." : "";
 }
 makeSortable($("#list-gabung"), () => G.files, renderG);
+ROTALL.gabung = d => { G.files.forEach(f => f.rot = (f.rot||0) + d); repaintCards($("#list-gabung"), G.files); };
 $$("[data-sort]").forEach(b => b.onclick = () => { const coll=new Intl.Collator("id",{numeric:true}); G.files.sort((a,c)=>coll.compare(a.name,c.name)); if(b.dataset.sort==="za") G.files.reverse(); renderG(); });
 $("#go-gabung").onclick = async () => {
   showProgress("Menggabungkan PDF…");
@@ -440,7 +482,7 @@ $("#go-gabung").onclick = async () => {
       const f = G.files[i]; progress(i/G.files.length, `Memproses ${f.name}`); await tick();
       const src = await loadPdfLib(new Uint8Array(await f.file.arrayBuffer())).catch(e => { throw new Error(`${f.name}: ${e.message}`); });
       const pages = await out.copyPages(src, src.getPageIndices());
-      pages.forEach(p => out.addPage(p));
+      pages.forEach(p => { rotatePage(p, f.rot); out.addPage(p); });
     }
     progress(.95, "Menyimpan…"); await tick();
     const bytes = await out.save();
@@ -459,10 +501,10 @@ handlers.pisah = async (fs) => {
     const bytes = new Uint8Array(await f.arrayBuffer());
     const pdf = await loadPdfJs(bytes);
     if(P.pdf) P.pdf.destroy(); if(P.io) P.io.disconnect();
-    Object.assign(P, {file:f, pdf, n:pdf.numPages, sel:new Set()});
+    Object.assign(P, {file:f, pdf, n:pdf.numPages, sel:new Set(), rot:new Array(pdf.numPages).fill(0)});
     $("#title-pisah").textContent = `${f.name} · ${pdf.numPages} halaman`;
     showWork("pisah", true);
-    P.io = buildPageGrid($("#pages-pisah"), pdf, {selectable:true, onToggle:(n)=>{ if(getMode()!=="pilih") return; P.sel.has(n)?P.sel.delete(n):P.sel.add(n); $("#range-pisah").value = rangesString(P.sel); syncPisah(); }});
+    P.io = buildPageGrid($("#pages-pisah"), pdf, {selectable:true, rot:{get:n => P.rot[n-1], set:(n,d) => P.rot[n-1] = d}, onToggle:(n)=>{ if(getMode()!=="pilih") return; P.sel.has(n)?P.sel.delete(n):P.sel.add(n); $("#range-pisah").value = rangesString(P.sel); syncPisah(); }});
     $("#range-pisah").value = ""; updatePisahMode(getMode());
   }catch(e){ showError(e.message); if(P.file){ $("#title-pisah").textContent = `${P.file.name} · ${P.n} halaman`; syncPisah(); } }
 };
@@ -486,6 +528,7 @@ function syncPisah(){
   $("#go-pisah").disabled = !ok;
 }
 $("#range-pisah").addEventListener("input", syncPisah);
+ROTALL.pisah = d => { if(!P.rot) return; P.rot = P.rot.map(x => x + d); repaintGrid($("#pages-pisah"), n => P.rot[n-1]); };
 $("#sel-all").onclick = () => { P.sel = new Set(Array.from({length:P.n},(_,i)=>i+1)); $("#range-pisah").value = rangesString(P.sel); syncPisah(); };
 $("#sel-none").onclick = () => { P.sel = new Set(); $("#range-pisah").value = ""; syncPisah(); };
 $("#go-pisah").onclick = async () => {
@@ -493,7 +536,7 @@ $("#go-pisah").onclick = async () => {
   showProgress("Memisah PDF…");
   try{
     const src = await loadPdfLib(new Uint8Array(await P.file.arrayBuffer()));
-    const makeDoc = async (idxs) => { const d = await PDFDocument.create(); (await d.copyPages(src, idxs)).forEach(p=>d.addPage(p)); return d.save(); };
+    const makeDoc = async (idxs) => { const d = await PDFDocument.create(); (await d.copyPages(src, idxs)).forEach((p,k) => { rotatePage(p, P.rot[idxs[k]]); d.addPage(p); }); return d.save(); };
     if(m==="pilih"){
       const pages = [...P.sel].sort((a,b)=>a-b);
       progress(.5, `Mengambil ${pages.length} halaman…`); await tick();
@@ -527,16 +570,18 @@ handlers.img = async (fs) => {
   if(imgs.length < fs.length) toast("Sebagian file dilewati karena bukan gambar");
   if(!imgs.length) return;
   if(!(await sizeOk(I.files.reduce((t,f)=>t+f.size,0) + imgs.reduce((t,f)=>t+f.size,0)))) return;
-  for(const f of imgs){ I.files.push({ id:++uid, name:f.name, size:f.size, file:f, url:URL.createObjectURL(f) }); }
+  for(const f of imgs){ I.files.push({ id:++uid, name:f.name, size:f.size, file:f, url:URL.createObjectURL(f), rot:0 }); }
   renderI();
 };
 function renderI(){
   showWork("img", I.files.length>0);
   $("#list-img").innerHTML = I.files.map((f,i)=>fitemHTML(f,i,fmtSize(f.size))).join("");
-  I.files.forEach(f => { const t=$(`[data-thumb="${f.id}"]`); const im=new Image(); im.src=f.url; im.alt=""; im.draggable=false; t.appendChild(im); });
+  I.files.forEach(f => { const t=$(`[data-thumb="${f.id}"]`); const im=new Image(); im.alt=""; im.draggable=false;
+    im.onload = () => { fitMedia(im); paintRotEl(t.closest(".fitem"), f.rot); }; im.src=f.url; t.appendChild(im); });
   $("#go-img").disabled = I.files.length===0;
 }
 makeSortable($("#list-img"), () => I.files, renderI);
+ROTALL.img = d => { I.files.forEach(f => f.rot = (f.rot||0) + d); repaintCards($("#list-img"), I.files); };
 function loadImage(url){ return new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>rej(new Error("Gambar tidak bisa dibaca")); im.src=url; }); }
 $("#go-img").onclick = async () => {
   showProgress("Membuat PDF…");
@@ -548,11 +593,13 @@ $("#go-img").onclick = async () => {
       const f = I.files[i]; progress(i/I.files.length, `Memproses ${f.name}`); await tick();
       let im; try{ im = await loadImage(f.url); }catch(e){ throw new Error(`${f.name}: gambar tidak bisa dibaca`); }
       // normalise through canvas (handles EXIF rotation, webp/gif/bmp, transparency)
-      const c = document.createElement("canvas"); c.width = im.naturalWidth; c.height = im.naturalHeight;
+      const r = norm(f.rot||0), sw = im.naturalWidth, sh = im.naturalHeight;
+      const c = document.createElement("canvas");
+      if(r % 180 === 90){ c.width = sh; c.height = sw; } else { c.width = sw; c.height = sh; }
       const ctx = c.getContext("2d");
       const png = /png$/i.test(f.file.type) || /\.png$/i.test(f.name);
       if(!png){ ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height); }
-      ctx.drawImage(im,0,0);
+      ctx.translate(c.width/2, c.height/2); ctx.rotate(r * Math.PI/180); ctx.drawImage(im, -sw/2, -sh/2);
       const blob = await canvasBlob(c, png ? "image/png" : "image/jpeg", .92);
       const buf = new Uint8Array(await blob.arrayBuffer());
       const emb = png ? await doc.embedPng(buf) : await doc.embedJpg(buf);
@@ -582,15 +629,16 @@ handlers.jpg = async (fs) => {
   try{
     const bytes = new Uint8Array(await f.arrayBuffer()); const pdf = await loadPdfJs(bytes);
     if(J.pdf) J.pdf.destroy(); if(J.io) J.io.disconnect();
-    Object.assign(J, {file:f, pdf});
+    Object.assign(J, {file:f, pdf, rot:new Array(pdf.numPages).fill(0)});
     $("#title-jpg").textContent = `${f.name} · ${pdf.numPages} halaman`;
     showWork("jpg", true);
-    J.io = buildPageGrid($("#pages-jpg"), pdf, {selectable:false});
+    J.io = buildPageGrid($("#pages-jpg"), pdf, {selectable:false, rot:{get:n => J.rot[n-1], set:(n,d) => J.rot[n-1] = d}});
     $("#range-jpg").value=""; syncJ();
   }catch(e){ showError(e.message); if(J.file){ $("#title-jpg").textContent = `${J.file.name} · ${J.pdf.numPages} halaman`; syncJ(); } }
 };
 function syncJ(){ const {ranges,error}=parseRanges($("#range-jpg").value, J.pdf?J.pdf.numPages:0); const h=$("#hint-jpg"); h.classList.toggle("err",!!error); const n = ranges.length ? pagesFromRanges(ranges).length : (J.pdf?J.pdf.numPages:0); h.textContent = error || `${n} gambar akan dibuat`; $("#go-jpg").disabled = !!error; }
 $("#range-jpg").addEventListener("input", syncJ);
+ROTALL.jpg = d => { if(!J.rot) return; J.rot = J.rot.map(x => x + d); repaintGrid($("#pages-jpg"), n => J.rot[n-1]); };
 $("#go-jpg").onclick = async () => {
   const {ranges} = parseRanges($("#range-jpg").value, J.pdf.numPages);
   const pages = ranges.length ? pagesFromRanges(ranges) : Array.from({length:J.pdf.numPages},(_,i)=>i+1);
@@ -600,7 +648,7 @@ $("#go-jpg").onclick = async () => {
     const outs = [];
     for(let i=0;i<pages.length;i++){
       progress(i/pages.length, `Halaman ${pages[i]} (${i+1}/${pages.length})`); await tick();
-      const {canvas} = await renderPage(J.pdf, pages[i], {scale});
+      const {canvas} = await renderPage(J.pdf, pages[i], {scale, rotate: J.rot[pages[i]-1]});
       outs.push({name:`${base}-hal-${pages[i]}.jpg`, blob: await canvasBlob(canvas, "image/jpeg", .9)});
       canvas.width = canvas.height = 0;
     }
@@ -621,6 +669,7 @@ const GS_LEVEL = {
   sedang: { preset:"/ebook",   dpi:144, q:0.6  },
   kuat:   { preset:"/screen",  dpi:96,  q:1.1  },
 };
+ROTALL.zip = d => { if(!K.rot) return; K.rot = K.rot.map(x => x + d); repaintGrid($("#pages-zip"), n => K.rot[n-1]); };
 const getLevel = segSetup("zip-level", v => { $("#zip-note").style.display = v==="ekstrem" ? "" : "none"; });
 let gsWarm = false; // mesin sudah pernah dimuat di sesi ini (tersimpan di cache browser)
 handlers.zip = async (fs) => {
@@ -630,10 +679,10 @@ handlers.zip = async (fs) => {
   try{
     const bytes = new Uint8Array(await f.arrayBuffer()); const pdf = await loadPdfJs(bytes);
     if(K.pdf) K.pdf.destroy(); if(K.io) K.io.disconnect();
-    Object.assign(K, {file:f, pdf});
+    Object.assign(K, {file:f, pdf, rot:new Array(pdf.numPages).fill(0)});
     $("#title-zip").textContent = `${f.name} · ${pdf.numPages} hal · ${fmtSize(f.size)}`;
     showWork("zip", true);
-    K.io = buildPageGrid($("#pages-zip"), pdf, {selectable:false});
+    K.io = buildPageGrid($("#pages-zip"), pdf, {selectable:false, rot:{get:n => K.rot[n-1], set:(n,d) => K.rot[n-1] = d}});
   }catch(e){ showError(e.message); if(K.file) $("#title-zip").textContent = `${K.file.name} · ${K.pdf.numPages} hal · ${fmtSize(K.file.size)}`; }
   finally{ $("#go-zip").disabled = !K.file; }
 };
@@ -686,7 +735,13 @@ $("#go-zip").onclick = async () => {
   const level = getLevel(); const base = baseName(K.file.name);
   showProgress("Mengompres PDF…");
   try{
-    const bytes = level==="ekstrem" ? await rasterCompress(progress) : await gsCompress(K.file, GS_LEVEL[level], K.pdf.numPages, progress);
+    let bytes = level==="ekstrem" ? await rasterCompress(progress) : await gsCompress(K.file, GS_LEVEL[level], K.pdf.numPages, progress);
+    if(K.rot.some(d => norm(d))){   // terapkan putaran ke hasil kompres
+      progress(.98, "Memutar halaman…"); await tick();
+      const d = await PDFDocument.load(bytes);
+      d.getPages().forEach((p, i) => rotatePage(p, K.rot[i]));
+      bytes = await d.save({useObjectStreams:true});
+    }
     const before = K.file.size, after = bytes.length;
     if(after >= before){
       showError(level==="ekstrem" ? "Hasilnya tidak lebih kecil dari aslinya. File ini sudah optimal." : `File ini sudah cukup optimal untuk tingkat ${level[0].toUpperCase()+level.slice(1)}. Coba tingkat yang lebih kuat kalau ukuran lebih penting.`);
