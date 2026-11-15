@@ -82,9 +82,9 @@ nav.tools-nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;m
 nav.tools-nav::-webkit-scrollbar{display:none}
 nav.tools-nav a{white-space:nowrap;text-decoration:none;font-size:var(--text-sm);font-weight:500;color:var(--color-ink-2);padding:6px 10px;border-radius:var(--radius-sm);transition:background var(--dur-fast) var(--ease-out),color var(--dur-fast) var(--ease-out)}
 nav.tools-nav a:hover{color:var(--color-ink);background:var(--color-sunk)}
-nav.tools-nav a.on{color:var(--color-ink);background:var(--color-sunk);box-shadow:inset 0 -2px 0 var(--color-accent)}
-.top-priv{flex:none;font-size:var(--text-sm);color:var(--color-ink-2);text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:6px}
-.top-priv:hover{color:var(--color-ink)}
+nav.tools-nav a.on,nav.tools-nav a.on:hover{color:var(--color-accent-ink);background:var(--color-accent)}
+.top-priv{flex:none;font-size:var(--text-sm);font-weight:500;color:var(--color-accent-ink);background:var(--color-accent);text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--radius-sm);transition:background var(--dur-fast) var(--ease-out)}
+.top-priv:hover{background:var(--color-accent-hover)}
 @media (max-width:720px){ .top-priv span{display:none} header.top .wrap{gap:var(--space-3)} }
 
 /* ---------- views ---------- */
