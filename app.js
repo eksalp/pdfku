@@ -238,7 +238,7 @@ function buildPageGrid(container, pdf, {selectable, onToggle, rot}){
   for(let n=1; n<=pdf.numPages; n++){
     const el = document.createElement("div");
     el.className = "pg"; el.dataset.n = n;
-    el.innerHTML = `<div class="tw"><div class="thumb"></div>${rot ? ROTBTN : ""}</div><span>${n}</span>`;
+    el.innerHTML = `<div class="tw"><div class="thumb"></div>${rot ? ROTBTN : ""}</div><span>${n}</span><i class="rtag"></i>`;
     el.onclick = (e) => {
       if(rot && e.target.closest("[data-rotate]")){ rot.set(n, rot.get(n) + 90); paintRotEl(el, rot.get(n)); return; }
       if(selectable) onToggle(n, el);
@@ -524,7 +524,8 @@ $("#go-gabung").onclick = async () => {
 };
 
 /* ================= PISAH ================= */
-const P = { file:null, bytes:null, pdf:null, n:0, sel:new Set(), io:null };
+// ranges: daftar rentang untuk mode "Pisah per rentang"; pick 0 = klik berikutnya jadi halaman awal, 1 = halaman akhir
+const P = { file:null, bytes:null, pdf:null, n:0, sel:new Set(), io:null, ranges:[], active:0 };
 const getMode = segSetup("mode-pisah", m => updatePisahMode(m));
 handlers.pisah = async (fs) => {
   const f = fs.find(isPdf); if(!f){ toast("Pilih file PDF"); return; }
@@ -534,17 +535,22 @@ handlers.pisah = async (fs) => {
     showProgress("Membuka PDF");
     const pdf = await openPdf(f);
     if(P.pdf) P.pdf.destroy(); if(P.io) P.io.disconnect();
-    Object.assign(P, {file:f, pdf, n:pdf.numPages, sel:new Set(), rot:new Array(pdf.numPages).fill(0)});
+    Object.assign(P, {file:f, pdf, n:pdf.numPages, sel:new Set(), rot:new Array(pdf.numPages).fill(0), ranges:[{a:1, b:pdf.numPages, pick:0}], active:0});
     $("#title-pisah").textContent = `${f.name} · ${pdf.numPages} halaman`;
     showWork("pisah", true);
-    P.io = buildPageGrid($("#pages-pisah"), pdf, {selectable:true, rot:{get:n => P.rot[n-1], set:(n,d) => P.rot[n-1] = d}, onToggle:(n)=>{ if(getMode()!=="pilih") return; P.sel.has(n)?P.sel.delete(n):P.sel.add(n); $("#range-pisah").value = rangesString(P.sel); syncPisah(); }});
+    P.io = buildPageGrid($("#pages-pisah"), pdf, {selectable:true, rot:{get:n => P.rot[n-1], set:(n,d) => P.rot[n-1] = d}, onToggle:(n)=>{
+      const m = getMode();
+      if(m==="pilih"){ P.sel.has(n)?P.sel.delete(n):P.sel.add(n); $("#range-pisah").value = rangesString(P.sel); syncPisah(); }
+      else if(m==="rentang") pickRangePage(n);
+    }});
     $("#range-pisah").value = ""; updatePisahMode(getMode());
     await loadDone();
   }catch(e){ showError(e.message); if(P.file){ $("#title-pisah").textContent = `${P.file.name} · ${P.n} halaman`; syncPisah(); } }
 };
 function updatePisahMode(m){
-  const grid = $("#pages-pisah"); grid.classList.toggle("nosel", m!=="pilih");
-  $("#opt-range").style.display = m==="semua" ? "none" : "";
+  const grid = $("#pages-pisah"); grid.classList.toggle("nosel", m==="semua"); grid.classList.toggle("rmode", m==="rentang");
+  $("#opt-range").style.display = m==="pilih" ? "" : "none";
+  $("#opt-ranges").style.display = m==="rentang" ? "" : "none";
   $("#selbtns").style.display = m==="pilih" ? "flex" : "none";
   $("#lbl-range").textContent = m==="rentang" ? "Rentang (tiap rentang = 1 file)" : "Halaman yang diambil";
   $("#range-pisah").placeholder = m==="rentang" ? `contoh: 1-3, 4-${Math.max(4,P.n)}` : "contoh: 1-3, 5, 8-10";
@@ -554,14 +560,81 @@ function syncPisah(){
   const m = getMode(); const {ranges, error} = parseRanges($("#range-pisah").value, P.n);
   const hint = $("#hint-range"); hint.classList.toggle("err", !!error);
   if(m==="pilih"){ if(!error) P.sel = new Set(pagesFromRanges(ranges)); }
-  $$(".pg", $("#pages-pisah")).forEach(el => el.classList.toggle("sel", m==="pilih" && P.sel.has(+el.dataset.n)));
+  paintPisahGrid();
   let ok = true;
   if(m==="pilih"){ hint.textContent = error || (P.sel.size ? `${P.sel.size} halaman dipilih → 1 file PDF` : "Klik halaman di kiri, atau ketik nomornya."); ok = !error && P.sel.size>0; }
-  else if(m==="rentang"){ hint.textContent = error || (ranges.length ? `${ranges.length} file akan dibuat` : "Ketik rentang, pisahkan dengan koma."); ok = !error && ranges.length>0; }
+  else if(m==="rentang"){ renderRanges(); ok = P.ranges.length > 0; }
   else { ok = P.n>0; }
   $("#go-pisah").disabled = !ok;
 }
 $("#range-pisah").addEventListener("input", syncPisah);
+/* ----- penyusun rentang ----- */
+function paintPisahGrid(){
+  const m = getMode(), act = P.ranges[P.active];
+  $$(".pg", $("#pages-pisah")).forEach(el => {
+    const n = +el.dataset.n;
+    if(m === "rentang"){
+      const hits = P.ranges.map((r,i) => n >= r.a && n <= r.b ? i+1 : 0).filter(Boolean);
+      const inActive = act && n >= act.a && n <= act.b;
+      el.classList.toggle("sel", !!inActive);
+      el.classList.toggle("inr", !inActive && hits.length > 0);
+      $(".rtag", el).textContent = hits.join(",");
+    } else {
+      el.classList.toggle("sel", m==="pilih" && P.sel.has(n));
+      el.classList.remove("inr"); $(".rtag", el).textContent = "";
+    }
+  });
+}
+function renderRanges(){
+  const box = $("#ranges"); if(!box) return;
+  const n = P.n || 1;
+  box.innerHTML = P.ranges.map((r,i) => `<div class="rrow${i===P.active?" on":""}" data-i="${i}">
+      <span class="rnum">${i+1}</span>
+      <div class="rfields">
+        <div class="stp"><button type="button" data-f="a" data-d="-1" aria-label="Kurangi halaman awal" ${r.a<=1?"disabled":""}>−</button><input data-f="a" value="${r.a}" inputmode="numeric" aria-label="Halaman awal rentang ${i+1}"><button type="button" data-f="a" data-d="1" aria-label="Tambah halaman awal" ${r.a>=n?"disabled":""}>+</button></div>
+        <span class="to">s/d</span>
+        <div class="stp"><button type="button" data-f="b" data-d="-1" aria-label="Kurangi halaman akhir" ${r.b<=1?"disabled":""}>−</button><input data-f="b" value="${r.b}" inputmode="numeric" aria-label="Halaman akhir rentang ${i+1}"><button type="button" data-f="b" data-d="1" aria-label="Tambah halaman akhir" ${r.b>=n?"disabled":""}>+</button></div>
+      </div>
+      <button type="button" class="rdel" title="Hapus rentang" aria-label="Hapus rentang ${i+1}">${ICON.x}</button>
+    </div>`).join("");
+  const act = P.ranges[P.active];
+  $("#hint-ranges").textContent = !P.ranges.length ? "Tambahkan minimal satu rentang."
+    : `${P.ranges.length} file akan dibuat · klik halaman ${act && act.pick ? "akhir" : "awal"} untuk rentang ${P.active+1}`;
+  $("#go-pisah").disabled = !P.ranges.length;
+  paintPisahGrid();
+}
+function setRange(i, f, v){
+  const r = P.ranges[i]; if(!r) return;
+  v = Math.max(1, Math.min(P.n, Math.round(v) || 1));
+  if(f === "a"){ r.a = v; if(r.b < r.a) r.b = r.a; } else { r.b = v; if(r.a > r.b) r.a = r.b; }
+}
+function pickRangePage(n){
+  if(!P.ranges.length){ P.ranges.push({a:n, b:n, pick:1}); P.active = 0; renderRanges(); return; }
+  const r = P.ranges[P.active];
+  if(!r.pick){ r.a = r.b = n; r.pick = 1; }
+  else { if(n < r.a){ r.b = r.a; r.a = n; } else r.b = n; r.pick = 0; }
+  renderRanges();
+}
+$("#ranges").addEventListener("click", e => {
+  const row = e.target.closest(".rrow"); if(!row) return;
+  const i = +row.dataset.i;
+  const step = e.target.closest("button[data-d]");
+  if(step){ const r = P.ranges[i]; setRange(i, step.dataset.f, r[step.dataset.f] + (+step.dataset.d)); r.pick = 0; P.active = i; renderRanges(); return; }
+  if(e.target.closest(".rdel")){ P.ranges.splice(i, 1); P.active = Math.max(0, Math.min(P.active, P.ranges.length - 1)); renderRanges(); return; }
+  if(e.target.closest("input")){ if(P.active !== i){ P.active = i; renderRanges(); } return; }
+  if(P.active !== i){ P.active = i; renderRanges(); }
+});
+$("#ranges").addEventListener("change", e => {
+  const inp = e.target.closest("input[data-f]"); if(!inp) return;
+  const i = +inp.closest(".rrow").dataset.i;
+  setRange(i, inp.dataset.f, parseInt(inp.value, 10)); P.ranges[i].pick = 0; renderRanges();
+});
+$("#ranges").addEventListener("keydown", e => { if(e.key === "Enter" && e.target.matches("input[data-f]")) e.target.blur(); });
+$("#add-range").onclick = () => {
+  const last = P.ranges[P.ranges.length - 1];
+  const start = last ? Math.min(last.b + 1, P.n) : 1;
+  P.ranges.push({a:start, b:start, pick:1}); P.active = P.ranges.length - 1; renderRanges();
+};
 ROTALL.pisah = d => { if(!P.rot) return; P.rot = P.rot.map(x => x + d); repaintGrid($("#pages-pisah"), n => P.rot[n-1]); };
 $("#sel-all").onclick = () => { P.sel = new Set(Array.from({length:P.n},(_,i)=>i+1)); $("#range-pisah").value = rangesString(P.sel); syncPisah(); };
 $("#sel-none").onclick = () => { P.sel = new Set(); $("#range-pisah").value = ""; syncPisah(); };
@@ -579,12 +652,14 @@ $("#go-pisah").onclick = async () => {
     } else {
       let groups;
       if(m==="semua") groups = Array.from({length:P.n},(_,i)=>[i+1,i+1]);
-      else groups = parseRanges($("#range-pisah").value, P.n).ranges;
-      const zip = new JSZip();
+      else groups = P.ranges.map(r => [r.a, r.b]);
+      const zip = new JSZip(); const used = new Set();
       for(let g=0; g<groups.length; g++){
         const [a,b] = groups[g]; progress(g/groups.length, `Membuat file ${g+1} dari ${groups.length}`); await tick();
         const idxs = []; for(let i=a;i<=b;i++) idxs.push(i-1);
-        zip.file(a===b ? `${base}-hal-${a}.pdf` : `${base}-hal-${a}-${b}.pdf`, await makeDoc(idxs));
+        let nm = a===b ? `${base}-hal-${a}` : `${base}-hal-${a}-${b}`, k = 2;
+        while(used.has(nm)) nm = (a===b ? `${base}-hal-${a}` : `${base}-hal-${a}-${b}`) + `-${k++}`;
+        used.add(nm); zip.file(nm + ".pdf", await makeDoc(idxs));
       }
       if(groups.length===1){ const only = Object.values(zip.files)[0]; const bytes = await only.async("uint8array"); showResult({title:"PDF berhasil dipisah", name:only.name, blob:pdfBlob(bytes)}); return; }
       progress(.96, "Membuat ZIP…"); await tick();

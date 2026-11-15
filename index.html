@@ -269,6 +269,27 @@ nav.tools-nav a.on{color:var(--color-ink);background:var(--color-sunk);box-shado
 .tw .rdeg:empty{display:none}
 .rot-all{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-2)}
 .rot-all .ghost{gap:6px;height:36px}
+/* pisah: penyusun rentang */
+.rrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--space-2);padding:8px 8px 8px 10px;border:var(--rule);border-radius:12px;margin-bottom:6px;cursor:pointer;background:var(--color-panel);transition:border-color var(--dur-fast) var(--ease-out),background var(--dur-fast) var(--ease-out)}
+.rrow:hover{border-color:var(--color-rule-strong)}
+.rrow.on{border-color:var(--color-accent);background:var(--color-accent-wash)}
+.rnum{width:22px;height:22px;border-radius:50%;background:var(--color-sunk);color:var(--color-ink-2);font-size:11px;font-weight:600;display:grid;place-items:center}
+.rrow.on .rnum{background:var(--color-accent);color:var(--color-accent-ink)}
+.rfields{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0}
+.rfields .to{font-size:var(--text-xs);color:var(--color-ink-3)}
+.stp{display:flex;align-items:center;border:var(--rule-strong);border-radius:999px;background:var(--color-panel);overflow:hidden}
+.stp button{width:26px;height:30px;border:0;background:transparent;color:var(--color-ink);font-size:16px;line-height:1;padding:0;transition:background var(--dur-fast) var(--ease-out),color var(--dur-fast) var(--ease-out)}
+.stp button:hover{background:var(--color-sunk);color:var(--color-accent)}
+.stp button:disabled{color:var(--color-rule-strong);background:transparent;cursor:default}
+.stp input{width:32px;border:0;text-align:center;font:inherit;font-size:var(--text-sm);font-weight:600;background:transparent;color:var(--color-ink);padding:0}
+.stp input:focus{outline:none;background:var(--color-accent-wash)}
+.rdel{width:28px;height:28px;border:0;border-radius:var(--radius-sm);background:transparent;color:var(--color-ink-3);display:grid;place-items:center;padding:0}
+.rdel:hover{background:var(--color-sunk);color:var(--color-err)}
+.pg .rtag{font-style:normal;position:absolute;top:10px;left:10px;z-index:3;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--color-accent);color:var(--color-accent-ink);font-size:11px;font-weight:600;display:grid;place-items:center;pointer-events:none}
+.pg .rtag:empty{display:none}
+.pg.inr{border-color:var(--color-accent);border-style:dashed}
+.pg.inr .rtag{background:var(--color-panel);color:var(--color-accent);box-shadow:inset 0 0 0 1.5px var(--color-accent)}
+.pages.rmode .pg.sel::after{display:none}
 /* server availability */
 .srv-off{display:none}
 body.no-server .srv-only{display:none!important}
@@ -439,6 +460,12 @@ footer a:hover{color:var(--color-ink);text-decoration:underline;text-underline-o
             <button class="ghost" id="sel-all" style="flex:1">Pilih semua</button>
             <button class="ghost" id="sel-none" style="flex:1">Kosongkan</button>
           </div>
+        </div>
+        <div class="opt" id="opt-ranges" style="display:none">
+          <label class="t">Rentang halaman</label>
+          <div id="ranges"></div>
+          <button class="ghost" id="add-range" style="width:100%;margin-top:var(--space-1)">+ Tambah rentang</button>
+          <p class="hint" id="hint-ranges"></p>
         </div>
         <div class="opt">
           <label class="t">Putar semua halaman</label>
