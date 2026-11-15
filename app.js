@@ -40,8 +40,8 @@ const ARROW = '<svg class="go-arrow" width="16" height="16" viewBox="0 0 24 24" 
 
 /* ---------- settings ---------- */
 const CONTACT_EMAIL = ""; // isi email kontak privasi, mis. "halo@domainmu.com"
-const SOURCE_URL = "";    // link repo GitHub PDFku (disarankan, karena Ghostscript berlisensi AGPL)
-// Alamat API server PDFku (untuk Word/Excel/PowerPoint ke PDF).
+const SOURCE_URL = "";    // link repo GitHub JagoPDF (disarankan, karena Ghostscript berlisensi AGPL)
+// Alamat API server JagoPDF (untuk Word/Excel/PowerPoint ke PDF).
 //   ""      = tanpa server: alat ☁️ disembunyikan, semua alat berjalan di perangkat (Cloudflare Pages)
 //   "/api"  = server di domain yang sama (paket VPS)
 //   "https://api.domainmu.com/api" = server di domain lain
@@ -434,7 +434,7 @@ $("#go-office").onclick = async () => {
 
 
 /* ================= BERANDA: kotak upload ================= */
-// Jatuhkan file apa pun di beranda → PDFku menawarkan alat yang cocok.
+// Jatuhkan file apa pun di beranda → JagoPDF menawarkan alat yang cocok.
 const HOME = { files: [] };
 const TOOL_HANDLER = { "gabung":"gabung", "pisah":"pisah", "kompres":"zip", "pdf-ke-jpg":"jpg", "gambar-ke-pdf":"img" };
 handlers.home = (fs) => {
