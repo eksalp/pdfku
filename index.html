@@ -340,11 +340,10 @@ body.server-down [data-drop="office"]{opacity:.5;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%)}
 
 /* ---------- legal ---------- */
-.legal{columns:2;column-gap:var(--space-4)}
-.legal > *{break-inside:avoid}
-.legal .tldr,.legal .eff{column-span:all}
-@media (max-width:860px){ .legal{columns:1} }
-.legal .panel{padding:var(--space-6);margin:0 0 var(--space-4);display:inline-block;width:100%}
+.lgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-4);align-items:start}
+.lcol{display:flex;flex-direction:column;gap:var(--space-4);min-width:0}
+@media (max-width:860px){ .lgrid{grid-template-columns:minmax(0,1fr)} }
+.legal .panel{padding:var(--space-6) var(--space-8);margin:0}
 .legal h3{font-size:var(--text-md);font-weight:600;margin-bottom:var(--space-3)}
 .legal p,.legal li{color:var(--color-ink-2);font-size:var(--text-base);line-height:1.65}
 .legal p{margin:0 0 var(--space-3)}
@@ -830,7 +829,8 @@ kbd{font:inherit;font-size:11px;font-weight:600;min-width:26px;height:24px;paddi
           <li>Tidak perlu daftar, tidak ada login, tidak ada cookie pelacak.</li>
         </ul>
       </div>
-
+      <div class="lgrid">
+      <div class="lcol">
       <div class="panel">
         <h3>Bagaimana JagoPDF bekerja</h3>
         <p>Kebanyakan situs PDF meng-upload file ke server mereka, memprosesnya di sana, lalu mengirim hasilnya kembali. <span class="nosrv-only">JagoPDF tidak begitu.</span><span class="srv-only">Sebagian besar alat JagoPDF tidak begitu.</span></p>
@@ -852,7 +852,6 @@ kbd{font:inherit;font-size:11px;font-weight:600;min-width:26px;height:24px;paddi
           <p>Kalau dokumenmu sangat rahasia, pakai alat <span class="mk">lokal</span>.</p>
         </div>
       </div>
-
       <div class="panel">
         <h3>Data yang tidak kami kumpulkan</h3>
         <ul>
@@ -863,7 +862,8 @@ kbd{font:inherit;font-size:11px;font-weight:600;min-width:26px;height:24px;paddi
         </ul>
         <p>Seperti semua situs web, penyedia hosting bisa mencatat log akses standar, yaitu alamat IP, waktu kunjungan, jenis browser, dan halaman yang dibuka. Log ini dipakai untuk keamanan dan <b>tidak berisi nama file atau isi dokumen kamu</b>.</p>
       </div>
-
+      </div>
+      <div class="lcol">
       <div class="panel">
         <h3>Pengaman teknis</h3>
         <ul>
@@ -873,7 +873,6 @@ kbd{font:inherit;font-size:11px;font-weight:600;min-width:26px;height:24px;paddi
           <li><b>Tanpa akses perangkat:</b> JagoPDF tidak meminta akses kamera, mikrofon, lokasi, atau kontak.</li>
         </ul>
       </div>
-
       <div class="panel">
         <h3>Syarat penggunaan</h3>
         <ul>
@@ -888,7 +887,8 @@ kbd{font:inherit;font-size:11px;font-weight:600;min-width:26px;height:24px;paddi
         </ul>
         <p id="contact-line" style="display:none">Pertanyaan soal privasi: <a id="contact-mail" href="#"></a></p>
       </div>
-
+      </div>
+      </div>
       <p class="eff">Berlaku sejak 12 November 2026</p>
     </div>
   </section>
