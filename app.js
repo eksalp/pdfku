@@ -54,6 +54,8 @@ const ACTIVE = TOOLS.filter(t => API_BASE || t.where !== "server");
 // kolom = jumlah alat (maks 6), supaya tidak ada kartu yang turun sendirian
 { const n = ACTIVE.length; $("#toolgrid").style.setProperty("--cols", n <= 6 ? n : (n % 3 === 0 ? 3 : n % 4 === 0 ? 4 : Math.ceil(n/2))); }
 $("#toolgrid").innerHTML = ACTIVE.map(t => `<a class="tool-card" href="#${t.id}" data-tone="${t.tone}"><div class="ic">${t.icon}</div><h3>${t.title}${t.where==="server" ? ' <span class="mk mk-srv">server</span>' : ""}</h3><p>${t.desc}</p></a>`).join("");
+$("#tool-count").textContent = ACTIVE.length + " alat";
+if(/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)) $$(".kmod").forEach(k => k.textContent = "⌘");
 $("#topnav").innerHTML = ACTIVE.map(t => `<a href="#${t.id}" data-id="${t.id}">${t.title}</a>`).join("");
 
 function route(){
@@ -286,6 +288,20 @@ $$("[data-drop]").forEach(z => {
   const el = $("#"+id);
   el.addEventListener("dragover", e => { if(e.dataTransfer.types.includes("Files")) e.preventDefault(); });
   el.addEventListener("drop", e => { if(e.dataTransfer.files.length){ e.preventDefault(); handlers[k]([...e.dataTransfer.files]); } });
+});
+// tempel file (Ctrl/⌘ + V) ke alat yang sedang dibuka
+document.addEventListener("paste", e => {
+  if(e.target.closest && e.target.closest("input,textarea,[contenteditable]")) return;
+  if($("#ov") && $("#ov").classList.contains("on")) return;
+  const fs = [...(e.clipboardData ? e.clipboardData.files : [])];
+  if(!fs.length) return;
+  e.preventDefault();
+  const id = (location.hash || "").slice(1);
+  const tool = ACTIVE.find(t => t.id === id);
+  const k = !tool ? (id === "privasi" ? null : "home") : (tool.office ? "office" : TOOL_HANDLER[id]);
+  if(!k){ location.hash = ""; setTimeout(() => handlers.home(fs), 0); return; }
+  const stamp = Date.now();
+  handlers[k](fs.map((f, i) => f.name && f.name !== "image.png" ? f : new File([f], `tempel-${stamp}-${i+1}.${(f.type.split("/")[1] || "png").replace("jpeg","jpg")}`, {type:f.type})));
 });
 function segSetup(id, onChange){
   const root = $("#"+id);
