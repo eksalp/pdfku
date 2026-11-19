@@ -6,7 +6,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>JagoPDF — Alat PDF Gratis di Browser</title>
-<meta name="description" content="JagoPDF: gabung, pisah, putar, kompres PDF, dan ubah gambar ke PDF gratis. File diproses di perangkatmu, tidak di-upload ke server.">
+<meta name="description" content="JagoPDF: gabung, pisah, kompres, edit, tanda tangan, kunci PDF, serta ubah Word, Excel, dan PowerPoint ke PDF. Gratis, file diproses di perangkatmu.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"%3E%3Crect width="32" height="32" rx="8" fill="%23c53a2f"/%3E%3Cpath d="M10 7h8.5l5 5v12.5a1.5 1.5 0 0 1-1.5 1.5H10a1.5 1.5 0 0 1-1.5-1.5v-16A1.5 1.5 0 0 1 10 7z" fill="%23fff"/%3E%3Cpath d="M18.5 7v3.5a1.5 1.5 0 0 0 1.5 1.5h3.5z" fill="%23c53a2f" opacity=".3"/%3E%3Cpath d="M17.6 13v6a3 3 0 0 1-6 0" fill="none" stroke="%23c53a2f" stroke-width="2.7" stroke-linecap="round"/%3E%3C/svg%3E">
 <link rel="stylesheet" href="lib/fonts.css">
 <script src="lib/pdf-lib.min.js"></script>
@@ -518,6 +518,199 @@ kbd{font:inherit;font-size:11px;font-weight:600;min-width:26px;height:24px;paddi
 @media (max-width:560px){
   .tools-side .tool-card{padding:var(--space-4)}
 }
+
+/* ======================================================================
+   NAV · menu semua alat
+   ====================================================================== */
+.navwrap{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:4px}
+.navwrap nav.tools-nav{flex:0 1 auto}
+.mega-btn{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:12px;border:1px solid var(--color-rule-strong);background:var(--color-panel);color:var(--color-ink);font:inherit;font-size:var(--text-sm);font-weight:600;white-space:nowrap;cursor:pointer;transition:border-color var(--dur-fast) var(--ease-out),background var(--dur-fast) var(--ease-out)}
+.mega-btn:hover{border-color:var(--color-accent-line)}
+.mega-btn .chev{transition:transform var(--dur-fast) var(--ease-out)}
+.mega-btn[aria-expanded=true] .chev{transform:rotate(180deg)}
+.mega-btn.on{color:var(--color-accent);border-color:var(--color-accent-line);background:var(--color-accent-wash)}
+.mega{position:absolute;left:0;right:0;top:100%;padding:var(--space-3) 0 var(--space-5);display:none}
+.mega.on{display:block}
+header.top .mega .wrap{height:auto;display:block}
+.mega-body{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-2) var(--space-6);padding:var(--space-6);border-radius:24px;background:var(--color-panel);border:1px solid var(--color-glass-edge);box-shadow:var(--shadow-lift)}
+.mg h4{font-size:var(--text-xs);font-weight:600;color:var(--color-ink-3);text-transform:none;letter-spacing:0;margin:0 0 6px;padding-left:8px}
+.mg{margin-bottom:var(--space-3)}
+.mg a{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:12px;color:var(--color-ink);text-decoration:none;font-size:var(--text-sm);font-weight:500;transition:background var(--dur-fast) var(--ease-out)}
+.mg a:hover{background:var(--color-sunk)}
+.mg a.on{background:var(--color-accent-wash);color:var(--color-accent)}
+.mi{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;color:var(--color-accent);background:var(--color-accent-wash)}
+.mi svg{width:18px;height:18px}
+header.top{position:sticky}
+@media (max-width:1180px){ .navwrap nav.tools-nav a:nth-child(n+4){display:none} }
+@media (max-width:900px){
+  .navwrap{justify-content:flex-end}
+  .navwrap nav.tools-nav{display:none}
+  .mega-body{grid-template-columns:repeat(2,minmax(0,1fr));padding:var(--space-4);max-height:calc(100dvh - 90px);overflow:auto}
+}
+@media (max-width:560px){
+  .mega-btn span{display:none}
+  .mega-btn{padding:0 10px}
+  .mega-body{grid-template-columns:minmax(0,1fr);gap:0}
+}
+
+/* home: semua alat */
+.all-tools{margin-top:var(--space-6)}
+.at-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap;margin:0 0 var(--space-4)}
+.at-head h2{font-size:clamp(1.5rem,1.2rem + 1vw,2rem);font-weight:700;letter-spacing:-.035em}
+.at-head p{margin:0;color:var(--color-ink-2);font-size:var(--text-sm)}
+.groups{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4);align-items:start}
+.grp{border-radius:26px;padding:var(--space-5);background:var(--color-glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border:1px solid var(--color-glass-edge);box-shadow:var(--shadow-card)}
+.grp h3{font-size:var(--text-sm);font-weight:600;color:var(--color-ink-2);margin:0 0 var(--space-3)}
+.grp-list{display:grid;gap:var(--space-2)}
+.grp .tool-card{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:var(--space-3);align-items:center;padding:10px 12px;border-radius:16px;background:var(--color-panel);border:1px solid var(--color-rule);box-shadow:none;transition:border-color var(--dur-fast) var(--ease-out),transform var(--dur-fast) var(--ease-out),box-shadow var(--dur-fast) var(--ease-out)}
+.grp .tool-card:hover{border-color:var(--color-accent-line);box-shadow:var(--shadow-card);transform:translateY(-1px)}
+.grp .tool-card .ic{grid-row:span 2;margin:0;width:40px;height:40px;border-radius:12px}
+.grp .tool-card .ic svg{width:22px;height:22px}
+.grp .tool-card h3{font-size:var(--text-sm);font-weight:700;letter-spacing:-.01em;margin:0;color:var(--color-ink);align-self:end}
+.grp .tool-card p{display:block!important;margin:0;font-size:var(--text-xs);color:var(--color-ink-3);line-height:1.4;align-self:start}
+@media (max-width:1100px){ .groups{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:640px){ .groups{grid-template-columns:minmax(0,1fr)} .grp{padding:var(--space-4);border-radius:22px} }
+
+/* ======================================================================
+   kontrol bersama alat baru
+   ====================================================================== */
+.pw{position:relative}
+.pw .field{padding-right:44px}
+.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:36px;height:34px;border:0;background:transparent;border-radius:10px;color:var(--color-ink-3);display:grid;place-items:center;padding:0;cursor:pointer}
+.eye:hover{color:var(--color-ink);background:var(--color-sunk)}
+.eye.on{color:var(--color-accent)}
+.chk{display:flex;align-items:flex-start;gap:10px;font-size:var(--text-sm);color:var(--color-ink);padding:6px 0;cursor:pointer;line-height:1.4}
+.chk input{appearance:none;-webkit-appearance:none;flex:none;width:18px;height:18px;margin:1px 0 0;border-radius:6px;border:1.5px solid var(--color-rule-strong);background:var(--color-panel);display:grid;place-items:center;cursor:pointer;transition:background var(--dur-fast) var(--ease-out),border-color var(--dur-fast) var(--ease-out)}
+.chk input::after{content:"";width:9px;height:5px;border:2px solid var(--color-accent-ink);border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px);opacity:0}
+.chk input:checked{background:var(--color-accent);border-color:var(--color-accent)}
+.chk input:checked::after{opacity:1}
+.chk input:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+.wide{width:100%;margin-top:var(--space-2)}
+.val{font-weight:500;color:var(--color-ink-3);margin-left:4px}
+input[type=range]{width:100%;accent-color:var(--color-accent);height:24px;cursor:pointer}
+.row-acts{display:flex;gap:var(--space-2);flex-wrap:wrap}
+.swatches{display:flex;gap:8px;margin-top:var(--space-3);flex-wrap:wrap}
+.swatches button{width:28px;height:28px;border-radius:50%;border:2px solid var(--color-panel);box-shadow:0 0 0 1px var(--color-rule-strong);padding:0;cursor:pointer;background:var(--sw)}
+.swatches button.on{box-shadow:0 0 0 2px var(--color-accent)}
+.posgrid{display:grid;grid-template-columns:repeat(3,40px);grid-template-rows:repeat(3,30px);gap:4px;padding:6px;border-radius:12px;background:var(--color-sunk);width:max-content;margin-bottom:var(--space-2)}
+.posgrid button{border:1px solid var(--color-rule-strong);border-radius:7px;background:var(--color-panel);padding:0;cursor:pointer}
+.posgrid button.on{background:var(--color-accent);border-color:var(--color-accent)}
+.posgrid.off{opacity:.4;pointer-events:none}
+.lockstate{display:flex;gap:var(--space-4);align-items:center;padding:var(--space-5);border-radius:18px;background:var(--color-sunk)}
+.lockstate .ic{width:52px;height:52px;border-radius:16px}
+.lockstate h5{margin:0 0 2px;font-size:var(--text-base);font-weight:700}
+.lockstate p{margin:0;font-size:var(--text-sm);color:var(--color-ink-2)}
+.wm-stage{display:grid;place-items:center;padding:var(--space-4);border-radius:18px;background:var(--color-sunk);min-height:320px}
+.wm-prev{position:relative;line-height:0;box-shadow:var(--shadow-card);background:#fff}
+.wm-prev canvas{display:block;max-width:100%;height:auto}
+.wm-prev canvas:first-child{max-height:min(70vh,720px);width:auto}
+.wm-prev canvas+canvas{position:absolute;inset:0;width:100%;height:100%}
+.pager{display:flex;align-items:center;justify-content:center;gap:var(--space-3);margin-top:var(--space-3);font-size:var(--text-sm);color:var(--color-ink-2)}
+.pager .ghost{width:38px;padding:0;font-size:18px}
+.txt-out{width:100%;min-height:460px;resize:vertical;border:var(--rule-strong);border-radius:16px;padding:var(--space-4);font:inherit;font-size:var(--text-sm);line-height:1.6;background:var(--color-panel);color:var(--color-ink)}
+.txt-out:focus{outline:none;border-color:var(--color-accent);box-shadow:0 0 0 3px var(--color-accent-wash)}
+.o2p-prev{max-height:640px;overflow:auto;border-radius:16px;background:var(--color-sunk);padding:var(--space-4)}
+.o2p-prev .docx-wrapper{background:transparent!important;padding:0!important}
+.o2p-prev .docx-wrapper>section.docx{box-shadow:var(--shadow-card)!important;margin-bottom:var(--space-4)!important}
+.o2p-prev .xsheet{background:#fff;padding:24px;border-radius:6px;box-shadow:var(--shadow-card);margin-bottom:var(--space-4);overflow:auto}
+.o2p-prev .ofile{display:flex;align-items:center;gap:var(--space-4);padding:var(--space-5);border-radius:14px;background:var(--color-panel)}
+.xsheet h5,.xprint h5{font-size:13px;font-weight:600;margin:0 0 10px;color:#444}
+.xsheet table,.xprint table{border-collapse:collapse;font-family:Calibri,Carlito,Arial,sans-serif;font-size:11pt;color:#000}
+.xsheet td,.xprint td{padding:2px 5px;vertical-align:bottom;white-space:nowrap;overflow:hidden}
+.seg button:disabled{opacity:.45;cursor:not-allowed}
+
+/* ======================================================================
+   EDITOR (Edit PDF & tanda tangan)
+   ====================================================================== */
+.work.ed.on{display:block}
+.ed-bar{position:sticky;top:72px;z-index:20;display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;padding:8px;border-radius:20px;background:var(--color-panel);border:1px solid var(--color-glass-edge);box-shadow:var(--shadow-card);margin-bottom:var(--space-3)}
+.ed-tools{display:flex;gap:2px;flex-wrap:wrap}
+.ed-tools button{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 12px;border:0;border-radius:12px;background:transparent;color:var(--color-ink-2);font:inherit;font-size:var(--text-sm);font-weight:500;cursor:pointer;white-space:nowrap}
+.ed-tools button:hover{background:var(--color-sunk);color:var(--color-ink)}
+.ed-tools button.on{background:var(--color-accent);color:var(--color-accent-ink);box-shadow:var(--shadow-glow)}
+.ed-props{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:40px;padding-left:var(--space-3);border-left:var(--rule)}
+.ed-props:empty{display:none}
+.ed-props select,.ed-props .num{height:34px;border:var(--rule-strong);border-radius:10px;background:var(--color-panel);font:inherit;font-size:var(--text-sm);padding:0 8px;color:var(--color-ink)}
+.ed-props .num{width:62px}
+.ed-props .swatches{margin:0}
+.ed-props .swatches button{width:24px;height:24px}
+.ed-props .tb{height:34px;min-width:34px;border:var(--rule-strong);border-radius:10px;background:var(--color-panel);font:inherit;font-weight:700;cursor:pointer;padding:0 8px}
+.ed-props .tb.on{background:var(--color-accent-wash);border-color:var(--color-accent);color:var(--color-accent)}
+.ed-props .del{color:var(--color-err)}
+.ed-right{margin-left:auto;display:flex;gap:var(--space-2);align-items:center}
+.ed-right .go{height:42px;width:auto;padding:0 var(--space-6);margin:0}
+.ed-right .ghost{display:inline-flex;align-items:center;gap:6px}
+.ed-hint{font-size:var(--text-sm);color:var(--color-ink-2);text-align:center;margin:0 0 var(--space-3);min-height:1.4em}
+.ed-pages{display:flex;flex-direction:column;align-items:center;gap:var(--space-5);padding:var(--space-4) 0 var(--space-12)}
+.epage{position:relative;width:min(100%,var(--pw,820px));background:#fff;box-shadow:var(--shadow-lift);border-radius:4px;user-select:none;-webkit-user-select:none}
+.epage canvas.pc{display:block;width:100%;height:auto;border-radius:4px}
+.epage .pn{position:absolute;left:-2px;top:-26px;font-size:var(--text-xs);color:var(--color-ink-3)}
+.elayer{position:absolute;inset:0;overflow:hidden}
+.ed[data-tool=text] .elayer{cursor:text}
+.ed[data-tool=white] .elayer,.ed[data-tool=hl] .elayer{cursor:crosshair}
+.ed[data-tool=pen] .elayer{cursor:crosshair;touch-action:none}
+.ed[data-tool=white] .elayer,.ed[data-tool=hl] .elayer{touch-action:none}
+.eo{position:absolute;box-sizing:border-box}
+.eo.sel{outline:1.5px solid var(--color-accent);outline-offset:2px}
+.ed[data-tool=select] .eo{cursor:move;touch-action:none}
+.eo.t{padding:0;white-space:pre;line-height:1.2;min-width:8px;outline-offset:3px}
+.eo.t.editing{cursor:text;outline:1.5px dashed var(--color-accent)}
+.eo.t .tx{outline:none;display:inline-block;min-width:4px;white-space:pre}
+.eo.t.editing .tx{cursor:text;-webkit-user-select:text;user-select:text}
+.eo.i img{width:100%;height:100%;display:block;pointer-events:none}
+.eo.w{background:#fff;box-shadow:inset 0 0 0 1px oklch(22% 0.008 40 / 0.12)}
+.eo.h{background:rgba(255,226,0,.42);mix-blend-mode:multiply}
+.eo.p{pointer-events:none}
+.ed[data-tool=select] .eo.p path{pointer-events:stroke}
+.eo .xb{pointer-events:auto}
+.eo.p svg{position:absolute;inset:0;overflow:visible}
+.eo .hd{position:absolute;right:-9px;bottom:-9px;width:16px;height:16px;border-radius:50%;background:var(--color-panel);border:2px solid var(--color-accent);cursor:nwse-resize;display:none;touch-action:none}
+.eo.sel .hd{display:block}
+.eo .xb{position:absolute;right:-12px;top:-12px;width:24px;height:24px;border-radius:50%;background:var(--color-err);color:#fff;border:2px solid #fff;display:none;place-items:center;padding:0;cursor:pointer;box-shadow:var(--shadow-card)}
+.eo.sel .xb{display:grid}
+.ghostbox{position:absolute;border:1.5px dashed var(--color-accent);background:var(--color-accent-wash);opacity:.6;pointer-events:none}
+@media (max-width:900px){
+  .ed-bar{top:64px;border-radius:16px}
+  .ed-tools{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;width:100%}
+  .ed-tools button span{display:none}
+  .ed-tools button{padding:0 11px}
+  .ed-props{border-left:0;padding-left:0;width:100%}
+  .ed-right{margin-left:0;width:100%}
+  .ed-right .go{flex:1}
+  .ed-right .ghost span{display:none}
+}
+
+/* modal tanda tangan */
+.sigmodal{position:fixed;inset:0;z-index:90;display:none;place-items:center;padding:var(--space-4);background:oklch(22% 0.008 40 / 0.35);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.sigmodal.on{display:grid}
+.sigbox{width:min(640px,100%);max-height:calc(100dvh - 32px);overflow:auto;border-radius:28px;background:var(--color-panel);box-shadow:var(--shadow-lift);padding:var(--space-6)}
+.sig-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-4)}
+.sig-head h3{font-size:var(--text-lg);font-weight:700;letter-spacing:-.02em}
+.sig-pane{margin-top:var(--space-4);position:relative}
+.sig-pane[hidden]{display:none}
+#sig-canvas{width:100%;height:auto;aspect-ratio:3/1;border:1.5px dashed var(--color-rule-strong);border-radius:16px;background:var(--color-sunk);touch-action:none;cursor:crosshair;display:block}
+.sig-line{position:absolute;left:8%;right:8%;top:calc((100% - 2.4em) * .72);border-top:1px solid var(--color-rule-strong);pointer-events:none}
+.sig-fonts{display:grid;gap:8px;margin-top:var(--space-3)}
+.sig-fonts button{height:72px;border:1.5px solid var(--color-rule-strong);border-radius:14px;background:var(--color-panel);font-size:34px;cursor:pointer;color:var(--sigc,#111);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 16px}
+.sig-fonts button.on{border-color:var(--color-accent);background:var(--color-accent-wash)}
+.sig-upprev{margin-top:var(--space-3);min-height:90px;border-radius:14px;background:var(--color-sunk);display:grid;place-items:center;padding:var(--space-3)}
+.sig-upprev img{max-width:100%;max-height:160px}
+.sig-foot{display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-5)}
+.sig-foot .swatches{margin:0}
+.sig-acts{display:flex;gap:var(--space-2)}
+.sig-acts .go{width:auto;padding:0 var(--space-6);height:46px;margin:0}
+
+/* cetak (Word/Excel ke PDF mode cepat) */
+#print-root{display:none}
+@media print{
+  body.printing > *:not(#print-root){display:none!important}
+  body.printing{background:#fff!important}
+  body.printing #print-root{display:block}
+  #print-root .docx-wrapper{background:#fff!important;padding:0!important;display:block!important}
+  #print-root .docx-wrapper>section.docx{box-shadow:none!important;margin:0!important;page-break-after:always;break-after:page}
+  #print-root .xprint{page-break-after:always;break-after:page}
+  #print-root .xprint:last-child,#print-root .docx-wrapper>section.docx:last-child{page-break-after:auto;break-after:auto}
+}
 @media (prefers-reduced-motion:reduce){ *,*::before,*::after{transition-duration:1ms!important;animation:none!important} }
 </style>
 </head>
@@ -526,9 +719,13 @@ kbd{font:inherit;font-size:11px;font-weight:600;min-width:26px;height:24px;paddi
 <header class="top">
   <div class="wrap">
     <a class="logo" href="#" aria-label="JagoPDF, ke beranda"><span class="mark"><svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M10 7h8.5l5 5v12.5a1.5 1.5 0 0 1-1.5 1.5H10a1.5 1.5 0 0 1-1.5-1.5v-16A1.5 1.5 0 0 1 10 7z" fill="#fff"/><path d="M18.5 7v3.5a1.5 1.5 0 0 0 1.5 1.5h3.5z" fill="currentColor" opacity=".3"/><path d="M17.6 13v6a3 3 0 0 1-6 0" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/></svg></span><span class="wm">Jago<span class="ku">PDF</span></span></a>
-    <nav class="tools-nav" id="topnav" aria-label="Alat"></nav>
+    <div class="navwrap">
+      <nav class="tools-nav" id="topnav" aria-label="Alat populer"></nav>
+      <button class="mega-btn" id="mega-btn" aria-expanded="false" aria-controls="mega"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Semua alat</span><svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    </div>
     <a class="top-priv" href="#privasi"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>Privasi</span></a>
   </div>
+  <div class="mega" id="mega" role="dialog" aria-label="Semua alat"><div class="wrap"><div class="mega-body" id="mega-body"></div></div></div>
 </header>
 
 <main class="wrap">
@@ -540,24 +737,24 @@ kbd{font:inherit;font-size:11px;font-weight:600;min-width:26px;height:24px;paddi
         <div class="intake-zone">
           <div class="ih">
             <h1>Urus PDF di browser</h1>
-            <p class="lede"><span class="nosrv-only">Gabung, pisah, kompres, dan ubah format.</span><span class="srv-only">Gabung, pisah, kompres, ubah format, dan Word/Excel ke PDF.</span> Tanpa upload, tanpa akun.</p>
+            <p class="lede"><span class="nosrv-only">Gabung, edit, tanda tangan, kompres, dan ubah format.</span><span class="srv-only">Gabung, pisah, kompres, ubah format, dan Word/Excel ke PDF.</span> Tanpa upload, tanpa akun.</p>
           </div>
           <div class="dz">
             <div class="dz-art" aria-hidden="true">
               <i class="pp p1"><b></b><b></b><b></b></i><i class="pp p2"><b></b><b></b><b></b></i><i class="pp p3"><b></b><b></b><b></b><b></b></i>
               <i class="pdfchip">PDF</i>
             </div>
-            <h2 class="dz-t">Tarik PDF atau gambar ke sini</h2>
+            <h2 class="dz-t">Tarik file ke sini</h2>
             <p class="dz-s">Lepas di mana saja di kotak ini, sebanyak yang kamu mau.</p>
             <div class="intake-act">
               <button class="big" data-pick="home">Pilih file</button>
               <span class="paste"><kbd class="kmod">Ctrl</kbd> + <kbd>V</kbd> untuk menempel</span>
             </div>
-            <div class="types" aria-label="Format yang didukung"><span>PDF</span><span>JPG</span><span>PNG</span><span>WebP</span><span>GIF</span></div>
+            <div class="types" aria-label="Format yang didukung"><span>PDF</span><span>JPG</span><span>PNG</span><span>Word</span><span>Excel</span><span>PowerPoint</span></div>
           </div>
         </div>
         <div class="intake-result" id="intake-result" aria-live="polite"></div>
-        <input type="file" id="in-home" accept="application/pdf,.pdf,image/jpeg,image/png,image/webp,image/gif,image/bmp" multiple>
+        <input type="file" id="in-home" accept="application/pdf,.pdf,image/jpeg,image/png,image/webp,image/gif,image/bmp,.doc,.docx,.odt,.rtf,.xls,.xlsx,.ods,.csv,.ppt,.pptx,.odp" multiple>
       </div>
 
       <aside class="tools-side">
@@ -565,6 +762,11 @@ kbd{font:inherit;font-size:11px;font-weight:600;min-width:26px;height:24px;paddi
         <div class="grid" id="toolgrid"></div>
       </aside>
     </div>
+
+    <section class="all-tools" aria-labelledby="all-h">
+      <div class="at-head"><h2 id="all-h">Semua alat</h2><p>Semuanya gratis dan berjalan di perangkatmu.</p></div>
+      <div class="groups" id="allgroups"></div>
+    </section>
 
     <div class="statement">
       <div class="st-copy">
@@ -578,7 +780,7 @@ kbd{font:inherit;font-size:11px;font-weight:600;min-width:26px;height:24px;paddi
         <i class="lockbadge"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></i>
       </div>
       <div class="st-side">
-        <p>Gabung, pisah, putar, dan kompres dikerjakan oleh perangkatmu sendiri. Isi file tidak pernah dikirim ke server mana pun.</p>
+        <p>Semua alat, dari gabung, tanda tangan, sampai Word ke PDF, dikerjakan oleh perangkatmu sendiri. Isi file tidak pernah dikirim ke server mana pun.</p>
         <a class="darkpill" href="#privasi"><span>Lihat cara kerjanya</span><i>→</i></a>
       </div>
     </div>
@@ -785,29 +987,231 @@ kbd{font:inherit;font-size:11px;font-weight:600;min-width:26px;height:24px;paddi
     </div>
   </section>
 
-  <!-- OFFICE KE PDF (server) -->
-  <section class="view" id="v-office">
+  <!-- KUNCI PDF -->
+  <section class="view" id="v-kunci-pdf">
     <a class="back" href="#">← Semua alat</a>
-    <div class="view-head"><div class="vh"><span class="ic" id="office-ic"></span><div><h2 id="office-title">Word ke PDF</h2><p id="office-desc"></p></div></div></div>
-    <div class="srv-off note" style="margin:0 0 var(--space-4)">Server JagoPDF sedang tidak bisa dihubungi, jadi alat ini belum bisa dipakai. Coba lagi beberapa saat lagi.</div>
-    <div class="drop" data-drop="office"><div class="drop-in">
-      <button class="big" data-pick="office" id="office-pick">Pilih file Word</button>
-      <small>atau seret file ke sini · bisa banyak sekaligus</small>
-      <small class="cloud">Di-upload ke server JagoPDF (terenkripsi), lalu langsung dihapus · <a href="#privasi">detail</a></small>
-    </div><input type="file" id="in-office" multiple></div>
-    <div class="work" id="w-office">
+    <div class="view-head"><div><h2>Kunci PDF</h2><p>Lindungi PDF dengan kata sandi. Tanpa kata sandi, file tidak bisa dibuka.</p></div></div>
+    <div class="drop" data-drop="lock"><div class="drop-in">
+      <button class="big" data-pick="lock" id="pick-lock">Pilih file PDF</button>
+      <small>atau seret file ke sini</small>
+      <small class="lock">Diproses di perangkatmu · <a href="#privasi">kenapa aman?</a></small>
+    </div><input type="file" id="in-lock" accept="application/pdf,.pdf"></div>
+    <div class="work" id="w-lock">
       <div class="panel">
-        <div class="row"><h4>File yang akan diubah</h4><button class="ghost" data-pick="office">+ Tambah file</button></div>
-        <div id="list-office"></div>
+        <div class="row"><h4 class="mono" id="title-lock"></h4><button class="ghost" data-pick="lock">Ganti file</button></div>
+        <div class="pages nosel" id="pages-lock"></div>
       </div>
       <div class="panel side">
-        <h4>Ubah ke PDF</h4>
-        <p class="hint mono" style="margin:0 0 var(--space-4)" id="sum-office"></p>
-        <button class="go" id="go-office">Ubah ke PDF</button>
-        <div class="note cloudnote">Diproses di server lalu langsung dihapus. Tidak disimpan dan tidak dilihat siapa pun.</div>
+        <div class="opt">
+          <label class="t" for="lock-pw">Kata sandi</label>
+          <div class="pw"><input class="field" type="password" id="lock-pw" autocomplete="new-password" placeholder="Minimal 4 karakter"><button type="button" class="eye" data-eye="lock-pw" aria-label="Tampilkan kata sandi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+          <label class="t" for="lock-pw2" style="margin-top:var(--space-3)">Ulangi kata sandi</label>
+          <div class="pw"><input class="field" type="password" id="lock-pw2" autocomplete="new-password"><button type="button" class="eye" data-eye="lock-pw2" aria-label="Tampilkan kata sandi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+          <p class="hint" id="hint-lock">Simpan kata sandinya baik-baik. Kalau lupa, file tidak bisa dibuka lagi.</p>
+        </div>
+        <div class="opt">
+          <label class="t">Batasi juga (opsional)</label>
+          <label class="chk"><input type="checkbox" id="lock-noprint"><span>Larang mencetak</span></label>
+          <label class="chk"><input type="checkbox" id="lock-nocopy"><span>Larang menyalin teks</span></label>
+          <label class="chk"><input type="checkbox" id="lock-noedit"><span>Larang mengubah isi</span></label>
+        </div>
+        <button class="go" id="go-lock" disabled>Kunci PDF</button>
+        <p class="hint">Enkripsi AES-256, standar yang sama dengan Adobe Acrobat.</p>
       </div>
     </div>
   </section>
+
+  <!-- BUKA KUNCI PDF -->
+  <section class="view" id="v-buka-kunci-pdf">
+    <a class="back" href="#">← Semua alat</a>
+    <div class="view-head"><div><h2>Buka kunci PDF</h2><p>Hapus kata sandi dan batasan dari PDF milikmu, supaya bisa dibuka tanpa sandi.</p></div></div>
+    <div class="drop" data-drop="unlock"><div class="drop-in">
+      <button class="big" data-pick="unlock" id="pick-unlock">Pilih file PDF</button>
+      <small>atau seret file ke sini</small>
+      <small class="lock">Diproses di perangkatmu · <a href="#privasi">kenapa aman?</a></small>
+    </div><input type="file" id="in-unlock" accept="application/pdf,.pdf"></div>
+    <div class="work" id="w-unlock">
+      <div class="panel">
+        <div class="row"><h4 class="mono" id="title-unlock"></h4><button class="ghost" data-pick="unlock">Ganti file</button></div>
+        <div class="lockstate" id="unlock-state"></div>
+      </div>
+      <div class="panel side">
+        <div class="opt" id="opt-unlock-pw">
+          <label class="t" for="unlock-pw">Kata sandi PDF</label>
+          <div class="pw"><input class="field" type="password" id="unlock-pw" autocomplete="current-password"><button type="button" class="eye" data-eye="unlock-pw" aria-label="Tampilkan kata sandi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+          <p class="hint" id="hint-unlock">Masukkan kata sandi yang biasa dipakai untuk membuka file ini.</p>
+        </div>
+        <button class="go" id="go-unlock" disabled>Buka kunci PDF</button>
+        <p class="hint">JagoPDF tidak membobol kata sandi. Alat ini untuk file milikmu yang sandinya kamu tahu.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WATERMARK -->
+  <section class="view" id="v-watermark">
+    <a class="back" href="#">← Semua alat</a>
+    <div class="view-head"><div><h2>Watermark PDF</h2><p>Beri tanda teks atau logo di halaman PDF, misalnya RAHASIA, DRAFT, atau nama perusahaan.</p></div></div>
+    <div class="drop" data-drop="wm"><div class="drop-in">
+      <button class="big" data-pick="wm" id="pick-wm">Pilih file PDF</button>
+      <small>atau seret file ke sini</small>
+      <small class="lock">Diproses di perangkatmu · <a href="#privasi">kenapa aman?</a></small>
+    </div><input type="file" id="in-wm" accept="application/pdf,.pdf"></div>
+    <div class="work" id="w-wm">
+      <div class="panel">
+        <div class="row"><h4 class="mono" id="title-wm"></h4><button class="ghost" data-pick="wm">Ganti file</button></div>
+        <div class="wm-stage"><div class="wm-prev" id="wm-prev"></div></div>
+        <div class="pager"><button class="ghost" id="wm-prevpg" aria-label="Halaman sebelumnya">‹</button><span id="wm-pgl">Halaman 1</span><button class="ghost" id="wm-nextpg" aria-label="Halaman berikutnya">›</button></div>
+      </div>
+      <div class="panel side">
+        <div class="opt"><label class="t">Jenis</label>
+          <div class="seg cols2" id="wm-kind"><button data-v="text" class="on">Teks</button><button data-v="img">Gambar / logo</button></div></div>
+        <div class="opt" id="opt-wm-text"><label class="t" for="wm-text">Teks watermark</label><input class="field" id="wm-text" value="RAHASIA" maxlength="60">
+          <div class="swatches" id="wm-color" role="radiogroup" aria-label="Warna"><button data-c="#6b7280" class="on" aria-label="Abu-abu"></button><button data-c="#e1000d" aria-label="Merah"></button><button data-c="#111111" aria-label="Hitam"></button><button data-c="#1d4ed8" aria-label="Biru"></button><button data-c="#15803d" aria-label="Hijau"></button></div></div>
+        <div class="opt" id="opt-wm-img" style="display:none"><label class="t">Gambar</label><button class="ghost" id="wm-imgpick" style="width:100%">Pilih gambar (PNG/JPG)</button><input type="file" id="wm-imgfile" accept="image/png,image/jpeg"><p class="hint" id="wm-imgname">PNG transparan paling bagus.</p></div>
+        <div class="opt"><label class="t">Ukuran <span class="val" id="wm-size-v"></span></label><input type="range" id="wm-size" min="10" max="100" value="60"></div>
+        <div class="opt"><label class="t">Transparansi <span class="val" id="wm-op-v"></span></label><input type="range" id="wm-op" min="5" max="100" value="25"></div>
+        <div class="opt"><label class="t">Kemiringan</label><div class="seg cols3" id="wm-angle"><button data-v="0">Datar</button><button data-v="45" class="on">Miring</button><button data-v="90">Tegak</button></div></div>
+        <div class="opt"><label class="t">Posisi</label>
+          <div class="posgrid" id="wm-pos"><button data-p="tl" aria-label="Kiri atas"></button><button data-p="tc" aria-label="Tengah atas"></button><button data-p="tr" aria-label="Kanan atas"></button><button data-p="ml" aria-label="Kiri tengah"></button><button data-p="mc" class=on aria-label="Tengah"></button><button data-p="mr" aria-label="Kanan tengah"></button><button data-p="bl" aria-label="Kiri bawah"></button><button data-p="bc" aria-label="Tengah bawah"></button><button data-p="br" aria-label="Kanan bawah"></button></div>
+          <label class="chk"><input type="checkbox" id="wm-tile"><span>Ulangi di seluruh halaman</span></label></div>
+        <div class="opt"><label class="t" for="wm-pages">Halaman</label><input class="field" id="wm-pages" placeholder="Semua halaman (atau mis. 1-3, 5)"><p class="hint" id="hint-wm"></p></div>
+        <button class="go" id="go-wm" disabled>Tambahkan watermark</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PDF KE TEKS -->
+  <section class="view" id="v-pdf-ke-teks">
+    <a class="back" href="#">← Semua alat</a>
+    <div class="view-head"><div><h2>PDF ke Teks</h2><p>Ambil semua tulisan di PDF. Halaman hasil scan dibaca dengan OCR, langsung di perangkatmu.</p></div></div>
+    <div class="drop" data-drop="txt"><div class="drop-in">
+      <button class="big" data-pick="txt" id="pick-txt">Pilih file PDF</button>
+      <small>atau seret file ke sini</small>
+      <small class="lock">Diproses di perangkatmu · <a href="#privasi">kenapa aman?</a></small>
+    </div><input type="file" id="in-txt" accept="application/pdf,.pdf"></div>
+    <div class="work" id="w-txt">
+      <div class="panel">
+        <div class="row"><h4 class="mono" id="title-txt"></h4><div class="row-acts"><button class="ghost" id="txt-copy" disabled>Salin semua</button><button class="ghost" data-pick="txt">Ganti file</button></div></div>
+        <textarea class="txt-out" id="txt-out" spellcheck="false" placeholder="Teks akan muncul di sini…"></textarea>
+        <p class="hint" id="hint-txt"></p>
+      </div>
+      <div class="panel side">
+        <div class="opt"><label class="t">Baca hasil scan (OCR)</label>
+          <div class="seg" id="txt-ocr">
+            <button data-v="auto" class="on">Otomatis<small>OCR hanya untuk halaman yang tidak punya teks</small></button>
+            <button data-v="all">Semua halaman<small>Pakai OCR di setiap halaman. Lebih lama</small></button>
+            <button data-v="off">Tanpa OCR<small>Paling cepat, hanya teks asli PDF</small></button>
+          </div>
+          <p class="hint">OCR membaca bahasa Indonesia dan Inggris. Pertama kali, browser mengunduh data OCR (±6 MB) sekali saja.</p></div>
+        <div class="opt"><label class="chk"><input type="checkbox" id="txt-marks" checked><span>Tandai awal setiap halaman</span></label></div>
+        <button class="go" id="go-txt" disabled>Ambil teks</button>
+        <button class="ghost wide" id="txt-dl" disabled>Unduh .txt</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- OFFICE KE PDF -->
+  <section class="view" id="v-o2p">
+    <a class="back" href="#">← Semua alat</a>
+    <div class="view-head"><div class="vh"><span class="ic" id="o2p-ic"></span><div><h2 id="o2p-title">Word ke PDF</h2><p id="o2p-desc"></p></div></div></div>
+    <div class="drop" data-drop="o2p"><div class="drop-in">
+      <button class="big" data-pick="o2p" id="pick-o2p">Pilih file Word</button>
+      <small>atau seret file ke sini</small>
+      <small class="lock">Diproses di perangkatmu · <a href="#privasi">kenapa aman?</a></small>
+    </div><input type="file" id="in-o2p" accept=""></div>
+    <div class="work" id="w-o2p">
+      <div class="panel">
+        <div class="row"><h4 class="mono" id="title-o2p"></h4><button class="ghost" data-pick="o2p">Ganti file</button></div>
+        <div class="o2p-prev" id="o2p-prev"></div>
+      </div>
+      <div class="panel side">
+        <div class="opt"><label class="t">Cara mengubah</label>
+          <div class="seg" id="o2p-mode">
+            <button data-v="cepat" class="on">Cepat<small>Langsung jadi, ringan. Tata letak rumit bisa sedikit bergeser.</small></button>
+            <button data-v="akurat">Akurat<small>Pakai LibreOffice di browser. Hasil paling mirip aslinya.</small></button>
+          </div>
+          <div class="note" id="o2p-note" style="display:none"></div></div>
+        <div class="opt" id="opt-o2p-orient"><label class="t">Arah kertas</label><div class="seg cols2" id="o2p-orient"><button data-v="p" class="on">Tegak</button><button data-v="l">Mendatar</button></div></div>
+        <button class="go" id="go-o2p" disabled>Ubah ke PDF</button>
+        <p class="hint" id="hint-o2p"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PDF KE WORD / EXCEL -->
+  <section class="view" id="v-p2o">
+    <a class="back" href="#">← Semua alat</a>
+    <div class="view-head"><div class="vh"><span class="ic" id="p2o-ic"></span><div><h2 id="p2o-title">PDF ke Word</h2><p id="p2o-desc"></p></div></div></div>
+    <div class="drop" data-drop="p2o"><div class="drop-in">
+      <button class="big" data-pick="p2o" id="pick-p2o">Pilih file PDF</button>
+      <small>atau seret file ke sini</small>
+      <small class="lock">Diproses di perangkatmu · <a href="#privasi">kenapa aman?</a></small>
+    </div><input type="file" id="in-p2o" accept="application/pdf,.pdf"></div>
+    <div class="work" id="w-p2o">
+      <div class="panel">
+        <div class="row"><h4 class="mono" id="title-p2o"></h4><button class="ghost" data-pick="p2o">Ganti file</button></div>
+        <div class="pages nosel" id="pages-p2o"></div>
+      </div>
+      <div class="panel side">
+        <div class="opt" id="opt-p2o-sheet"><label class="t">Susunan sheet</label>
+          <div class="seg cols2" id="p2o-sheet"><button data-v="per" class="on">Per halaman</button><button data-v="one">Satu sheet</button></div></div>
+        <div class="opt"><label class="t">Baca hasil scan (OCR)</label>
+          <div class="seg cols3" id="p2o-ocr"><button data-v="auto" class="on">Otomatis</button><button data-v="all">Semua</button><button data-v="off">Mati</button></div>
+          <p class="hint">Otomatis: OCR hanya untuk halaman tanpa teks (hasil scan).</p></div>
+        <div class="opt"><label class="t" for="p2o-pages">Halaman</label><input class="field" id="p2o-pages" placeholder="Semua halaman (atau mis. 1-3, 5)"><p class="hint" id="hint-p2o"></p></div>
+        <button class="go" id="go-p2o" disabled>Ubah ke Word</button>
+        <div class="note cloudnote" id="p2o-note"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EDIT PDF & TANDA TANGAN -->
+  <section class="view" id="v-edit">
+    <a class="back" href="#">← Semua alat</a>
+    <div class="view-head"><div class="vh"><span class="ic" id="edit-ic"></span><div><h2 id="edit-title">Edit PDF</h2><p id="edit-desc"></p></div></div></div>
+    <div class="drop" data-drop="edit"><div class="drop-in">
+      <button class="big" data-pick="edit" id="pick-edit">Pilih file PDF</button>
+      <small>atau seret file ke sini</small>
+      <small class="lock">Diproses di perangkatmu · <a href="#privasi">kenapa aman?</a></small>
+    </div><input type="file" id="in-edit" accept="application/pdf,.pdf"></div>
+    <div class="work ed" id="w-edit">
+      <div class="ed-bar" id="ed-bar">
+        <div class="ed-tools" role="toolbar" aria-label="Alat edit">
+          <button data-tool="select" class="on" title="Pilih & geser"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 3l14 8-6.5 1.5L9 19z"/></svg><span>Pilih</span></button>
+          <button data-tool="text" title="Tambah teks"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 6V4.5h14V6M12 4.5v15M9 19.5h6"/></svg><span>Teks</span></button>
+          <button data-tool="sign" title="Tanda tangan"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16.5c2.5-4 4.4-9 6.4-9 1.6 0-.6 8 1 8 1.2 0 2.2-3 3.5-3 1 0 .8 2 2 2 .8 0 1.7-.6 2.6-1.2"/><path d="M3 20.5h18"/></svg><span>Tanda tangan</span></button>
+          <button data-tool="image" title="Tambah gambar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="m21 15.5-4.5-4.5L7 20.5"/></svg><span>Gambar</span></button>
+          <button data-tool="white" title="Tutup bagian (kotak putih)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="12" rx="1.5"/><path d="M8 10h8M8 14h5" opacity=".4"/></svg><span>Tutup</span></button>
+          <button data-tool="hl" title="Stabilo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 15 8.5-8.5a2.1 2.1 0 0 0-3-3L6 12l-1 4z"/><path d="M3 21h9" stroke-width="3" opacity=".5"/></svg><span>Stabilo</span></button>
+          <button data-tool="pen" title="Pena"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c3-1 4-6 7-6s2 6 5 6 3-4 6-5"/></svg><span>Pena</span></button>
+        </div>
+        <div class="ed-props" id="ed-props"></div>
+        <div class="ed-right">
+          <button class="ghost" id="ed-undo" disabled title="Urungkan (Ctrl+Z)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span>Urungkan</span></button>
+          <button class="ghost" data-pick="edit">Ganti file</button>
+          <button class="go" id="go-edit">Simpan PDF</button>
+        </div>
+      </div>
+      <div class="ed-hint" id="ed-hint"></div>
+      <div class="ed-pages" id="ed-pages"></div>
+      <input type="file" id="ed-imgfile" accept="image/png,image/jpeg,image/webp">
+    </div>
+  </section>
+
+  <!-- MODAL TANDA TANGAN -->
+  <div class="sigmodal" id="sigmodal" role="dialog" aria-modal="true" aria-labelledby="sig-h">
+    <div class="sigbox">
+      <div class="sig-head"><h3 id="sig-h">Buat tanda tangan</h3><button class="rdel" id="sig-x" aria-label="Tutup"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+      <div class="seg cols3" id="sig-tab"><button data-v="draw" class="on">Gambar</button><button data-v="type">Ketik</button><button data-v="upload">Unggah</button></div>
+      <div class="sig-pane" id="sig-draw"><canvas id="sig-canvas" width="900" height="300" aria-label="Area menggambar tanda tangan"></canvas><div class="sig-line"></div><p class="hint">Gambar tanda tangan dengan mouse, trackpad, atau jari.</p></div>
+      <div class="sig-pane" id="sig-type" hidden><input class="field" id="sig-name" placeholder="Ketik namamu" maxlength="40"><div class="sig-fonts" id="sig-fonts"></div></div>
+      <div class="sig-pane" id="sig-upload" hidden><button class="ghost wide" id="sig-uppick">Pilih foto tanda tangan</button><input type="file" id="sig-upfile" accept="image/png,image/jpeg,image/webp"><div class="sig-upprev" id="sig-upprev"></div><label class="chk"><input type="checkbox" id="sig-upclean" checked><span>Hapus latar putih</span></label></div>
+      <div class="sig-foot">
+        <div class="swatches" id="sig-color"><button data-c="#111111" class="on" aria-label="Hitam"></button><button data-c="#1d3fbf" aria-label="Biru"></button><button data-c="#c81e1e" aria-label="Merah"></button></div>
+        <div class="sig-acts"><button class="ghost" id="sig-clear">Hapus</button><button class="go" id="sig-ok">Pakai tanda tangan</button></div>
+      </div>
+    </div>
+  </div>
 
   <!-- PRIVASI -->
   <section class="view" id="v-privasi">
@@ -837,7 +1241,7 @@ kbd{font:inherit;font-size:11px;font-weight:600;min-width:26px;height:24px;paddi
         <p>Saat kamu membuka JagoPDF, browser mengunduh aplikasinya, yaitu kode JavaScript dan mesin pengolah PDF. Setelah itu, untuk alat <span class="mk">lokal</span>:</p>
         <ol>
           <li>File yang kamu pilih dibaca oleh browser ke memori perangkatmu sendiri.</li>
-          <li>Gabung, pisah, kompres, dan konversi dikerjakan oleh prosesor perangkatmu.</li>
+          <li>Gabung, pisah, kompres, edit, tanda tangan, kunci, OCR, dan konversi Word/Excel dikerjakan oleh prosesor perangkatmu.</li>
           <li>Hasilnya dibuat di perangkatmu, lalu disimpan ke folder unduhan saat kamu menekan <b>Unduh</b>.</li>
         </ol>
         <p>Tidak ada satu langkah pun yang mengirim isi file ke internet. <span class="nosrv-only">Server kami hanya menyajikan halaman web dan tidak pernah menerima file.</span></p>
@@ -868,7 +1272,7 @@ kbd{font:inherit;font-size:11px;font-weight:600;min-width:26px;height:24px;paddi
         <h3>Pengaman teknis</h3>
         <ul>
           <li><b>Content Security Policy (CSP):</b> browser hanya mengizinkan halaman ini terhubung ke situs JagoPDF sendiri. Kode mana pun yang mencoba mengirim data ke tempat lain akan diblokir oleh browser.</li>
-          <li><b>Alat <span class="mk">lokal</span> tidak mengirim file sama sekali.</b> Satu-satunya yang diunduh dari situs JagoPDF adalah aplikasinya sendiri, termasuk mesin kompres saat pertama kali dipakai.</li>
+          <li><b>Alat <span class="mk">lokal</span> tidak mengirim file sama sekali.</b> Satu-satunya yang diunduh dari situs JagoPDF adalah aplikasinya sendiri, termasuk mesin kompres, data OCR, dan LibreOffice saat pertama kali dipakai. Tanda tangan yang kamu buat juga tidak disimpan di mana pun.</li>
           <li><b>HTTPS:</b> semua koneksi terenkripsi.</li>
           <li><b>Tanpa akses perangkat:</b> JagoPDF tidak meminta akses kamera, mikrofon, lokasi, atau kontak.</li>
         </ul>
@@ -881,7 +1285,7 @@ kbd{font:inherit;font-size:11px;font-weight:600;min-width:26px;height:24px;paddi
           <li>Gunakan JagoPDF hanya untuk file yang berhak kamu olah. Tanggung jawab atas isi file ada pada pengguna.</li>
           <li>Kecepatan dan batas ukuran file bergantung pada memori perangkatmu. File sangat besar paling lancar diproses di komputer.</li>
           <li class="srv-only">Alat <span class="mk mk-srv">server</span> punya batas ukuran file dan jumlah pemakaian. Hasil konversi Word/Excel/PowerPoint bisa sedikit berbeda dari aslinya, terutama jika dokumen memakai font khusus.</li>
-          <li>PDF yang dikunci dengan kata sandi belum didukung.</li>
+          <li>PDF yang dikunci kata sandi harus dibuka dulu dengan alat Buka kunci PDF, memakai sandi yang kamu tahu. JagoPDF tidak membobol kata sandi.</li>
           <li>Kami tidak bertanggung jawab atas kerugian yang timbul dari penggunaan layanan ini.</li>
           <li>Kebijakan ini bisa diperbarui. Kalau suatu saat kami menambah iklan, analitik, atau mengubah cara file diproses, halaman ini akan diperbarui lebih dulu.</li>
         </ul>
@@ -889,7 +1293,7 @@ kbd{font:inherit;font-size:11px;font-weight:600;min-width:26px;height:24px;paddi
       </div>
       </div>
       </div>
-      <p class="eff">Berlaku sejak 12 November 2026</p>
+      <p class="eff">Diperbarui 19 November 2026</p>
     </div>
   </section>
 
@@ -903,5 +1307,8 @@ kbd{font:inherit;font-size:11px;font-weight:600;min-width:26px;height:24px;paddi
 <div class="toast" id="toast" role="status"></div>
 
 <script src="app.js"></script>
+<script src="tools.js"></script>
+<script src="tools-office.js"></script>
+<script src="tools-edit.js"></script>
 </body>
 </html>

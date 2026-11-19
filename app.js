@@ -22,20 +22,34 @@ ICON.rotate = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" strok
 ICON.rotL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v6h6"/><path d="M3.5 9A9 9 0 1 1 6 18"/></svg>';
 ICON.rotR = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3v6h-6"/><path d="M20.5 9A9 9 0 1 0 18 18"/></svg>';
 ICON.slide = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M12 17v4M8 21h8"/></svg>';
-// where: "local" = di perangkat, "server" = di server, "both" = pengguna memilih
-const TOOLS = [
-  {id:"gabung", tone:"merge", sig:"PDF ×n → PDF", title:"Gabung PDF", desc:"Satukan beberapa PDF jadi satu, urutan bebas.", icon:ICON.merge, color:"var(--c-merge)", where:"local"},
-  {id:"pisah", tone:"split", sig:"PDF → PDF ×n", title:"Pisah PDF", desc:"Ambil halaman tertentu atau pecah jadi beberapa file.", icon:ICON.split, color:"var(--c-split)", where:"local"},
-  {id:"kompres", tone:"compress", sig:"PDF → PDF lebih kecil", title:"Kompres PDF", desc:"Perkecil ukuran file, teks tetap bisa dicopy.", icon:ICON.zip, color:"var(--c-zip)", where:"local"},
-  {id:"word-ke-pdf", tone:"word", sig:"DOC · DOCX → PDF", title:"Word ke PDF", desc:"Ubah DOC/DOCX jadi PDF, tata letak tetap rapi.", icon:ICON.doc, color:"#2b579a", where:"server",
-    office:{accept:[".doc",".docx",".odt",".rtf"], pick:"Pilih file Word", label:"DOC", lead:"Ubah dokumen Word jadi PDF. Tata letak, tabel, dan gambar tetap rapi."}},
-  {id:"excel-ke-pdf", tone:"excel", sig:"XLS · XLSX → PDF", title:"Excel ke PDF", desc:"Ubah XLS/XLSX jadi PDF yang siap dikirim.", icon:ICON.sheet, color:"#217346", where:"server",
-    office:{accept:[".xls",".xlsx",".ods",".csv"], pick:"Pilih file Excel", label:"XLS", lead:"Ubah spreadsheet Excel jadi PDF. Rumus ikut dihitung, semua sheet ikut diubah."}},
-  {id:"ppt-ke-pdf", tone:"ppt", sig:"PPT · PPTX → PDF", title:"PowerPoint ke PDF", desc:"Ubah PPT/PPTX jadi PDF untuk dibagikan.", icon:ICON.slide, color:"#c43e1c", where:"server",
-    office:{accept:[".ppt",".pptx",".odp"], pick:"Pilih file PowerPoint", label:"PPT", lead:"Ubah presentasi PowerPoint jadi PDF, satu slide per halaman."}},
-  {id:"gambar-ke-pdf", tone:"img", sig:"JPG · PNG · WEBP → PDF", title:"Gambar ke PDF", desc:"Ubah JPG, PNG, WEBP jadi satu PDF.", icon:ICON.img, color:"var(--c-img)", where:"local"},
-  {id:"pdf-ke-jpg", tone:"jpg", sig:"PDF → JPG", title:"PDF ke JPG", desc:"Ubah setiap halaman PDF jadi gambar.", icon:ICON.jpg, color:"var(--c-jpg)", where:"local"},
+// h = kunci handler file, view = id tampilan (default "v-"+id), g = grup di menu
+const ICON2 = {lock:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><path d="M12 14.5v2.5"/></svg>',unlock:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 7.6-1.7"/><path d="M12 14.5v2.5"/></svg>',wm:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 11.2c1.7 2 2.5 3.3 2.5 4.3a2.5 2.5 0 0 1-5 0c0-1 .8-2.3 2.5-4.3z"/></svg>',txt:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M8.5 11.5h7M12 11.5v6.5"/></svg>',edit:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="m14.5 7.5 3 3"/></svg>',sign:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16.5c2.5-4 4.4-9 6.4-9 1.6 0-.6 8 1 8 1.2 0 2.2-3 3.5-3 1 0 .8 2 2 2 .8 0 1.7-.6 2.6-1.2"/><path d="M3 20.5h18"/></svg>',word:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="m8.2 11.5 1.3 6 2.5-4.4 2.5 4.4 1.3-6"/></svg>',excel:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="m9.2 11.5 5.6 6.5M14.8 11.5 9.2 18"/></svg>',ppt:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9.8 18.2v-7h2.8a2.1 2.1 0 0 1 0 4.2H9.8"/></svg>'};
+const GROUPS = [
+  {id:"atur", title:"Atur & optimalkan"},
+  {id:"ke", title:"Ubah ke PDF"},
+  {id:"dari", title:"Ubah dari PDF"},
+  {id:"edit", title:"Edit & keamanan"},
 ];
+const TOOLS = [
+  {id:"gabung", g:"atur", h:"gabung", tone:"merge", title:"Gabung PDF", desc:"Satukan beberapa PDF jadi satu, urutan bebas.", icon:ICON.merge, where:"local"},
+  {id:"pisah", g:"atur", h:"pisah", tone:"split", title:"Pisah PDF", desc:"Ambil halaman tertentu atau pecah jadi beberapa file.", icon:ICON.split, where:"local"},
+  {id:"kompres", g:"atur", h:"zip", tone:"compress", title:"Kompres PDF", desc:"Perkecil ukuran file, teks tetap bisa dicopy.", icon:ICON.zip, where:"local"},
+  {id:"gambar-ke-pdf", g:"ke", h:"img", tone:"img", title:"Gambar ke PDF", desc:"Ubah JPG, PNG, WEBP jadi satu PDF.", icon:ICON.img, where:"local"},
+  {id:"word-ke-pdf", g:"ke", h:"o2p", view:"v-o2p", tone:"word", title:"Word ke PDF", desc:"Ubah DOCX/DOC jadi PDF.", icon:ICON2.word, where:"local", o2p:"word"},
+  {id:"excel-ke-pdf", g:"ke", h:"o2p", view:"v-o2p", tone:"excel", title:"Excel ke PDF", desc:"Ubah XLSX/XLS jadi PDF.", icon:ICON2.excel, where:"local", o2p:"excel"},
+  {id:"ppt-ke-pdf", g:"ke", h:"o2p", view:"v-o2p", tone:"ppt", title:"PowerPoint ke PDF", desc:"Ubah PPTX/PPT jadi PDF.", icon:ICON2.ppt, where:"local", o2p:"ppt"},
+  {id:"pdf-ke-jpg", g:"dari", h:"jpg", tone:"jpg", title:"PDF ke JPG", desc:"Ubah setiap halaman PDF jadi gambar.", icon:ICON.jpg, where:"local"},
+  {id:"pdf-ke-word", g:"dari", h:"p2o", view:"v-p2o", tone:"word", title:"PDF ke Word", desc:"Ambil isi PDF jadi dokumen Word yang bisa diedit.", icon:ICON2.word, where:"local", p2o:"word"},
+  {id:"pdf-ke-excel", g:"dari", h:"p2o", view:"v-p2o", tone:"excel", title:"PDF ke Excel", desc:"Ambil tabel di PDF jadi spreadsheet Excel.", icon:ICON2.excel, where:"local", p2o:"excel"},
+  {id:"pdf-ke-teks", g:"dari", h:"txt", tone:"txt", title:"PDF ke Teks", desc:"Ambil semua tulisan, termasuk dari hasil scan.", icon:ICON2.txt, where:"local"},
+  {id:"edit-pdf", g:"edit", h:"edit", view:"v-edit", tone:"edit", title:"Edit PDF", desc:"Tambah teks, gambar, coretan, atau tutup bagian.", icon:ICON2.edit, where:"local"},
+  {id:"tanda-tangan", g:"edit", h:"edit", view:"v-edit", tone:"sign", title:"Tanda tangan PDF", desc:"Gambar, ketik, atau unggah tanda tanganmu.", icon:ICON2.sign, where:"local"},
+  {id:"watermark", g:"edit", h:"wm", tone:"wm", title:"Watermark PDF", desc:"Beri tanda teks atau logo di setiap halaman.", icon:ICON2.wm, where:"local"},
+  {id:"kunci-pdf", g:"edit", h:"lock", tone:"lock", title:"Kunci PDF", desc:"Lindungi PDF dengan kata sandi (AES-256).", icon:ICON2.lock, where:"local"},
+  {id:"buka-kunci-pdf", g:"edit", h:"unlock", tone:"unlock", title:"Buka kunci PDF", desc:"Hapus kata sandi dari PDF milikmu.", icon:ICON2.unlock, where:"local"},
+];
+const POPULAR = ["gabung","kompres","edit-pdf","tanda-tangan","word-ke-pdf","pdf-ke-word"];
+const QUICK = ["gabung","pisah","kompres","edit-pdf","tanda-tangan"];
 const ARROW = '<svg class="go-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 
 /* ---------- settings ---------- */
@@ -51,27 +65,38 @@ const API_BASE = "";
 const ACTIVE = TOOLS.filter(t => API_BASE || t.where !== "server");
 
 /* ---------- shell ---------- */
-// kolom = jumlah alat (maks 6), supaya tidak ada kartu yang turun sendirian
-{ const n = ACTIVE.length; $("#toolgrid").style.setProperty("--cols", n <= 6 ? n : (n % 3 === 0 ? 3 : n % 4 === 0 ? 4 : Math.ceil(n/2))); }
-$("#toolgrid").innerHTML = ACTIVE.map(t => `<a class="tool-card" href="#${t.id}" data-tone="${t.tone}"><div class="ic">${t.icon}</div><h3>${t.title}${t.where==="server" ? ' <span class="mk mk-srv">server</span>' : ""}</h3><p>${t.desc}</p></a>`).join("");
+const toolById = id => TOOLS.find(t => t.id === id);
+const cardHTML = t => `<a class="tool-card" href="#${t.id}" data-tone="${t.tone}"><div class="ic">${t.icon}</div><h3>${t.title}</h3><p>${t.desc}</p></a>`;
+$("#toolgrid").innerHTML = POPULAR.map(toolById).filter(Boolean).map(cardHTML).join("");
 $("#tool-count").textContent = ACTIVE.length + " alat";
+$("#allgroups").innerHTML = GROUPS.map(g => { const ts = ACTIVE.filter(t => t.g === g.id); return ts.length ? `<div class="grp"><h3>${g.title}</h3><div class="grp-list">${ts.map(cardHTML).join("")}</div></div>` : ""; }).join("");
+$("#mega-body").innerHTML = GROUPS.map(g => { const ts = ACTIVE.filter(t => t.g === g.id); return ts.length ? `<div class="mg"><h4>${g.title}</h4>${ts.map(t => `<a href="#${t.id}" data-id="${t.id}"><span class="mi" data-tone="${t.tone}">${t.icon}</span>${t.title}</a>`).join("")}</div>` : ""; }).join("");
 if(/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)) $$(".kmod").forEach(k => k.textContent = "⌘");
-$("#topnav").innerHTML = ACTIVE.map(t => `<a href="#${t.id}" data-id="${t.id}">${t.title}</a>`).join("");
+$("#topnav").innerHTML = QUICK.map(toolById).map(t => `<a href="#${t.id}" data-id="${t.id}">${t.title.replace(" PDF","")}</a>`).join("");
+// menu "Semua alat"
+const mega = $("#mega"), megaBtn = $("#mega-btn");
+function setMega(open){ mega.classList.toggle("on", open); megaBtn.setAttribute("aria-expanded", String(open)); document.body.classList.toggle("mega-open", open); }
+megaBtn.addEventListener("click", e => { e.stopPropagation(); setMega(!mega.classList.contains("on")); });
+document.addEventListener("click", e => { if(mega.classList.contains("on") && !e.target.closest("#mega")) setMega(false); });
+document.addEventListener("keydown", e => { if(e.key === "Escape") setMega(false); });
 
+const ROUTE_HOOKS = [];
 function route(){
   const id = (location.hash || "").slice(1);
   const tool = ACTIVE.find(t => t.id === id);
   const known = !!tool || id === "privasi";
-  const viewId = !known ? "v-home" : (tool && tool.office ? "v-office" : "v-"+id);
-  if(tool && tool.office && typeof setOfficeTool === "function") setOfficeTool(tool);
+  const viewId = !known ? "v-home" : (tool ? (tool.view || "v-"+id) : "v-"+id);
+  setMega(false);
+  ROUTE_HOOKS.forEach(fn => { try{ fn(tool, id); }catch(e){ console.error(e); } });
   $$(".view").forEach(v => v.classList.toggle("on", v.id === viewId));
-  $$("#topnav a").forEach(a => a.classList.toggle("on", a.dataset.id === id));
+  $$("#topnav a, #mega a").forEach(a => a.classList.toggle("on", a.dataset.id === id));
+  megaBtn.classList.toggle("on", !!tool && !QUICK.includes(id));
   window.scrollTo(0,0);
   if (typeof hideOv === 'function') hideOv();
 }
 // logo alat di judul halaman alatnya
 TOOLS.forEach(t => {
-  const head = t.office ? null : $(`#v-${t.id} .view-head > div`);
+  const head = t.view ? null : $(`#v-${t.id} .view-head > div`);
   if(!head) return;
   const wrap = document.createElement("div"); wrap.className = "vh";
   wrap.innerHTML = `<span class="ic" data-tone="${t.tone}">${t.icon}</span>`;
@@ -273,7 +298,7 @@ const pdfBlob = bytes => new Blob([bytes], {type:"application/pdf"});
 /* drop zones + pickers */
 const handlers = {};
 $$("[data-pick]").forEach(b => b.addEventListener("click", e => { e.preventDefault(); $("#in-"+b.dataset.pick).click(); }));
-["gabung","pisah","img","jpg","zip","office","home"].forEach(k => {
+$$('input[type=file][id^="in-"]').map(i => i.id.slice(3)).forEach(k => {
   const input = $("#in-"+k);
   input.addEventListener("change", () => { const fs=[...input.files]; input.value=""; if(fs.length) handlers[k](fs); });
 });
@@ -284,10 +309,10 @@ $$("[data-drop]").forEach(z => {
   z.addEventListener("drop", e => { e.preventDefault(); z.classList.remove("over"); const fs=[...e.dataTransfer.files]; if(fs.length) handlers[k](fs); });
 });
 // allow dropping files onto the work area too
-[["w-gabung","gabung"],["w-img","img"],["w-pisah","pisah"],["w-jpg","jpg"],["w-zip","zip"],["w-office","office"]].forEach(([id,k]) => {
+$$('.work[id^="w-"]').map(w => [w.id, w.id.slice(2)]).forEach(([id,k]) => {
   const el = $("#"+id);
   el.addEventListener("dragover", e => { if(e.dataTransfer.types.includes("Files")) e.preventDefault(); });
-  el.addEventListener("drop", e => { if(e.dataTransfer.files.length){ e.preventDefault(); handlers[k]([...e.dataTransfer.files]); } });
+  el.addEventListener("drop", e => { if(e.dataTransfer.files.length && handlers[k]){ e.preventDefault(); handlers[k]([...e.dataTransfer.files]); } });
 });
 // tempel file (Ctrl/⌘ + V) ke alat yang sedang dibuka
 document.addEventListener("paste", e => {
@@ -298,7 +323,7 @@ document.addEventListener("paste", e => {
   e.preventDefault();
   const id = (location.hash || "").slice(1);
   const tool = ACTIVE.find(t => t.id === id);
-  const k = !tool ? (id === "privasi" ? null : "home") : (tool.office ? "office" : TOOL_HANDLER[id]);
+  const k = !tool ? (id === "privasi" ? null : "home") : tool.h;
   if(!k){ location.hash = ""; setTimeout(() => handlers.home(fs), 0); return; }
   const stamp = Date.now();
   handlers[k](fs.map((f, i) => f.name && f.name !== "image.png" ? f : new File([f], `tempel-${stamp}-${i+1}.${(f.type.split("/")[1] || "png").replace("jpeg","jpg")}`, {type:f.type})));
@@ -339,146 +364,46 @@ function fitemHTML(item, i, meta){
     <div class="tw"><div class="thumb" data-thumb="${item.id}"></div>${ROTBTN}</div><div class="nm" title="${esc(item.name)}">${esc(item.name)}</div><div class="meta">${meta}</div></div>`;
 }
 
-/* ---------- server (fitur ☁️) ---------- */
-const SERVER = { ok:false, maxMb:100, checked:false };
-async function checkServer(){
-  if(API_BASE){
-    try{
-      const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 7000);
-      const r = await fetch(API_BASE + "/health", {signal:ctl.signal, cache:"no-store"}); clearTimeout(t);
-      if(r.ok){ const j = await r.json(); SERVER.ok = !!j.ok; SERVER.maxMb = j.max_mb || 100; }
-    }catch(e){ SERVER.ok = false; }
-  }
-  SERVER.checked = true; applyServerState();
-}
-function applyServerState(){
-  document.body.classList.toggle("server-down", !SERVER.ok);
-  renderO();
-}
-/* upload → process → download, with real progress for both transfers */
-function serverPost(path, form, onStage){
-  return new Promise((resolve, reject) => {
-    const x = new XMLHttpRequest();
-    x.open("POST", API_BASE + path); x.responseType = "blob"; x.timeout = 15*60*1000;
-    x.upload.onprogress = e => { if(e.lengthComputable) onStage("up", e.loaded/e.total); };
-    x.upload.onload = () => onStage("proc", 0);
-    x.onprogress = e => { if(e.lengthComputable && e.total) onStage("down", e.loaded/e.total); };
-    x.onload = async () => {
-      if(x.status >= 200 && x.status < 300){
-        resolve({ blob: new Blob([x.response], {type:"application/pdf"}), notSmaller: x.getResponseHeader("X-Not-Smaller")==="1" });
-      } else {
-        let msg = x.status===413 ? `File terlalu besar. Maksimal ${SERVER.maxMb} MB.` : x.status===429 ? "Terlalu banyak permintaan. Tunggu beberapa menit lalu coba lagi." : "Server sedang bermasalah. Coba lagi sebentar lagi.";
-        try{ const j = JSON.parse(await x.response.text()); if(j.error) msg = j.error; }catch(e){}
-        reject(new Error(msg));
-      }
-    };
-    x.onerror = () => reject(new Error("Tidak bisa terhubung ke server. Periksa koneksi internetmu lalu coba lagi."));
-    x.ontimeout = () => reject(new Error("Server terlalu lama merespons. Coba lagi nanti."));
-    x.send(form);
-  });
-}
-function stageText(stage, frac, label){
-  if(stage==="up") return `Mengunggah${label?" "+label:""}… ${Math.round(frac*100)}%`;
-  if(stage==="proc") return `Memproses di server${label?" ("+label+")":""}…`;
-  return `Mengunduh hasil… ${Math.round(frac*100)}%`;
-}
-function stageFrac(stage, frac){ return stage==="up" ? frac*0.5 : stage==="proc" ? 0.6 : 0.6 + frac*0.4; }
-function serverTooBig(bytes){
-  if(bytes <= SERVER.maxMb*MB) return false;
-  showError(`File ${fmtSize(bytes)} melebihi batas server (${SERVER.maxMb} MB). `);
-  return true;
-}
-
-/* ================= OFFICE KE PDF ================= */
-const O = { tool:null, files:[] };
-function setOfficeTool(tool){
-  if(O.tool !== tool){ O.files = []; }
-  O.tool = tool;
-  $("#office-title").textContent = tool.title;
-  const oic = $("#office-ic"); oic.dataset.tone = tool.tone; oic.innerHTML = tool.icon;
-  $("#office-desc").textContent = tool.office.lead;
-  $("#office-pick").textContent = tool.office.pick;
-  $("#in-office").accept = tool.office.accept.join(",");
-  renderO();
-}
-const extOf = n => (n.match(/\.[^.]+$/)||[""])[0].toLowerCase();
-handlers.office = async (fs) => {
-  const ok = fs.filter(f => O.tool.office.accept.includes(extOf(f.name)));
-  if(ok.length < fs.length) toast(`Sebagian file dilewati. ${O.tool.title} menerima ${O.tool.office.accept.join(", ")}`);
-  for(const f of ok){
-    if(f.size > SERVER.maxMb*MB){ toast(`${f.name} melebihi batas ${SERVER.maxMb} MB`); continue; }
-    O.files.push({ id:++uid, name:f.name, size:f.size, file:f, status:"", blob:null });
-  }
-  renderO();
-};
-function renderO(){
-  if(!O.tool) return;
-  showWork("office", O.files.length > 0);
-  const col = O.tool.color, lab = O.tool.office.label;
-  $("#list-office").innerHTML = O.files.map(f => `<div class="orow" data-id="${f.id}"><div class="ext" style="background:${col}">${esc(extOf(f.name).slice(1).toUpperCase()||lab)}</div>
-    <div class="nm"><b title="${esc(f.name)}">${esc(f.name)}</b><span>${fmtSize(f.size)}</span></div>
-    <span class="st ${f.status==="ok"?"ok":f.status&&f.status!=="ok"?"err":""}">${f.status==="ok"?"Selesai":f.status?esc(f.status):""}</span>
-    <button data-del="${f.id}" title="Hapus">${ICON.x}</button></div>`).join("");
-  $("#sum-office").textContent = `${O.files.length} file → ${O.files.length===1 ? "1 PDF" : O.files.length+" PDF (dalam ZIP)"}`;
-  $("#go-office").disabled = O.files.length===0 || !SERVER.ok;
-}
-$("#list-office").addEventListener("click", e => { const b=e.target.closest("[data-del]"); if(!b) return; O.files = O.files.filter(f => f.id != b.dataset.del); renderO(); });
-$("#go-office").onclick = async () => {
-  showProgress(`Mengubah ke PDF…`);
-  const outs = []; const n = O.files.length;
-  for(let i=0;i<n;i++){
-    const f = O.files[i]; const label = n>1 ? `${i+1}/${n}` : "";
-    const fd = new FormData(); fd.append("file", f.file, f.name);
-    try{
-      const r = await serverPost("/office-to-pdf", fd, (st, fr) => progress((i + stageFrac(st, fr))/n, stageText(st, fr, label)));
-      f.status = "ok"; outs.push({ name: baseName(f.name)+".pdf", blob:r.blob });
-    }catch(e){
-      f.status = "Gagal";
-      if(n===1){ renderO(); showError(e.message); return; }
-      toast(`${f.name}: ${e.message}`);
-    }
-  }
-  renderO();
-  if(!outs.length){ showError("Tidak ada file yang berhasil diubah."); return; }
-  if(outs.length===1){ showResult({title:"PDF siap", name:outs[0].name, blob:outs[0].blob}); return; }
-  progress(.98, "Membuat ZIP…"); await tick();
-  const zip = new JSZip(); const used = new Set();
-  outs.forEach(o => { let nm=o.name, k=2; while(used.has(nm)) nm = o.name.replace(/\.pdf$/, `-${k++}.pdf`); used.add(nm); zip.file(nm, o.blob); });
-  const blob = await zip.generateAsync({type:"blob", compression:"STORE"});
-  showResult({title:"PDF siap", name:"hasil-pdf.zip", blob, extra:`<p class="muted" style="margin:6px 0 0">${outs.length} file PDF di dalam ZIP${outs.length<n?` · ${n-outs.length} gagal`:""}</p>`});
-};
-
-
-/* ================= BERANDA: kotak upload ================= */
-// Jatuhkan file apa pun di beranda → JagoPDF menawarkan alat yang cocok.
 const HOME = { files: [] };
-const TOOL_HANDLER = { "gabung":"gabung", "pisah":"pisah", "kompres":"zip", "pdf-ke-jpg":"jpg", "gambar-ke-pdf":"img" };
+const isDocx = f => /\.(docx?|odt|rtf)$/i.test(f.name), isXlsx = f => /\.(xlsx?|ods|csv)$/i.test(f.name), isPptx = f => /\.(pptx?|odp)$/i.test(f.name);
 handlers.home = (fs) => {
   HOME.files = fs;
   const pdfs = fs.filter(isPdf), imgs = fs.filter(f => !isPdf(f) && isImg(f));
+  const docs = fs.filter(isDocx), xls = fs.filter(isXlsx), ppts = fs.filter(isPptx);
   const acts = [];
   if(pdfs.length >= 2) acts.push({id:"gabung", label:`Gabung ${pdfs.length} PDF jadi satu`, files:pdfs});
-  if(pdfs.length === 1){
-    acts.push({id:"kompres", label:"Kompres", files:pdfs});
-    acts.push({id:"pisah", label:"Pisah / ambil halaman", files:pdfs});
-    acts.push({id:"pdf-ke-jpg", label:"Ubah ke JPG", files:pdfs});
+  if(pdfs.length){
+    const one = [pdfs[0]], nm = pdfs.length > 1 ? ` ${esc(pdfs[0].name)}` : "";
+    acts.push({id:"kompres", label:"Kompres"+nm, files:one});
+    acts.push({id:"edit-pdf", label:"Edit", files:one});
+    acts.push({id:"tanda-tangan", label:"Tanda tangani", files:one});
+    if(pdfs.length === 1) acts.push({id:"pisah", label:"Pisah / ambil halaman", files:one});
+    acts.push({id:"pdf-ke-word", label:"Ubah ke Word", files:one});
+    acts.push({id:"pdf-ke-excel", label:"Ubah ke Excel", files:one});
+    acts.push({id:"pdf-ke-jpg", label:"Ubah ke JPG", files:one});
+    acts.push({id:"pdf-ke-teks", label:"Ambil teks", files:one});
+    acts.push({id:"watermark", label:"Beri watermark", files:one});
+    acts.push({id:"kunci-pdf", label:"Kunci", files:one});
+    acts.push({id:"buka-kunci-pdf", label:"Buka kunci", files:one});
   }
-  if(pdfs.length >= 2) acts.push({id:"kompres", label:`Kompres ${esc(pdfs[0].name)}`, files:[pdfs[0]]});
   if(imgs.length) acts.push({id:"gambar-ke-pdf", label: imgs.length===1 ? "Jadikan PDF" : `Jadikan ${imgs.length} gambar satu PDF`, files:imgs});
-  const ok = new Set([...pdfs, ...imgs]);
+  if(docs.length) acts.push({id:"word-ke-pdf", label:"Word ke PDF", files:docs});
+  if(xls.length) acts.push({id:"excel-ke-pdf", label:"Excel ke PDF", files:xls});
+  if(ppts.length) acts.push({id:"ppt-ke-pdf", label:"PowerPoint ke PDF", files:ppts});
+  const ok = new Set([...pdfs, ...imgs, ...docs, ...xls, ...ppts]);
   const rows = fs.map(f => { const ext = (f.name.match(/\.([^.]+)$/)||["",""])[1] || "?";
     return `<li class="${ok.has(f)?"":"skip"}"><span class="ext">${esc(ext.slice(0,5))}</span><span class="nm" title="${esc(f.name)}">${esc(f.name)}</span><span class="sz">${ok.has(f) ? fmtSize(f.size) : "tidak didukung"}</span></li>`; }).join("");
   $("#intake-result").innerHTML = `<div class="ir-head"><h2>${fs.length} file siap</h2><button class="ghost" id="ir-reset">Ganti file</button></div>
     <ul class="ir-files">${rows}</ul>
     ${acts.length ? `<p class="ir-q">Mau diapakan?</p><div class="ir-actions">${acts.map((a,i) => `<button class="btn ${i===0?"btn-primary":""}" data-act="${i}">${a.label}</button>`).join("")}</div>`
-      : `<p class="ir-q">Belum ada file yang bisa diproses. Pilih PDF atau gambar (JPG, PNG, WEBP).</p>`}`;
+      : `<p class="ir-q">Belum ada file yang bisa diproses. Pilih PDF, gambar, Word, Excel, atau PowerPoint.</p>`}`;
   $("#intake").classList.add("has-files");
   $("#ir-reset").onclick = () => { $("#intake").classList.remove("has-files"); $("#in-home").click(); };
   $$("[data-act]", $("#intake-result")).forEach(b => b.onclick = () => {
     const a = acts[+b.dataset.act];
     location.hash = a.id;
     $("#intake").classList.remove("has-files");
-    setTimeout(() => handlers[TOOL_HANDLER[a.id]](a.files), 0);
+    setTimeout(() => handlers[toolById(a.id).h](a.files), 0);
   });
 };
 
@@ -882,7 +807,11 @@ $("#go-zip").onclick = async () => {
   }catch(e){ showError(e.message || String(e)); }
 };
 
-route();
-checkServer();
+/* dipakai alat-alat di tools.js */
+window.JP = { $, $$, ICON, TOOLS, ACTIVE, toolById, handlers, ROUTE_HOOKS, ROTALL, route, toast, showProgress, progress, readFileProgress, openPdf, loadDone, tick, hideOv, showResult, showError,
+  sizeOk, esc, fmtSize, baseName, isPdf, isImg, parseRanges, pagesFromRanges, loadPdfLib, loadPdfJs, renderPage, canvasBlob, norm, rotatePage, buildPageGrid, paintRotEl, repaintGrid,
+  saveFile, pdfBlob, segSetup, showWork, get ovBox(){ return ovBox; }, get ov(){ return ov; } };
+window.JP_BOOT = () => { route(); };
+if(!document.querySelector('script[src^="tools.js"]')) window.JP_BOOT();
 
 })();
