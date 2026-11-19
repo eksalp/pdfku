@@ -8,11 +8,11 @@ const { $, $$, esc, fmtSize, baseName, isPdf, handlers, toast, showProgress, pro
 const { PDFDocument, StandardFonts, rgb, degrees } = PDFLib;
 
 /* ---------- helper bersama ---------- */
-const abs = p => new URL(p, location.href).href;
+const abs = p => new URL(String(p).replace(/^\//,""), location.origin + "/").href;  // selalu dari root, agar jalan di / maupun /office/
 const scriptCache = {};
 function loadScript(src){
   return scriptCache[src] || (scriptCache[src] = new Promise((res, rej) => {
-    const s = document.createElement("script"); s.src = src; s.onload = res;
+    const s = document.createElement("script"); s.src = abs(src); s.onload = res;
     s.onerror = () => { delete scriptCache[src]; rej(new Error("Komponen gagal dimuat. Periksa koneksi internet lalu coba lagi.")); };
     document.head.appendChild(s);
   }));
@@ -20,7 +20,7 @@ function loadScript(src){
 const cssCache = {};
 function loadCss(href){
   return cssCache[href] || (cssCache[href] = new Promise((res) => {
-    const l = document.createElement("link"); l.rel = "stylesheet"; l.href = href; l.onload = res; l.onerror = res; document.head.appendChild(l);
+    const l = document.createElement("link"); l.rel = "stylesheet"; l.href = abs(href); l.onload = res; l.onerror = res; document.head.appendChild(l);
   }));
 }
 function hexRgb(hex){ const n = parseInt(hex.slice(1), 16); return rgb(((n>>16)&255)/255, ((n>>8)&255)/255, (n&255)/255); }
@@ -65,7 +65,7 @@ async function qpdfRun(input, args){
   if(!qpdfFactory){
     await loadScript("lib/qpdf/qpdf.js");
     qpdfFactory = window.Module; try { delete window.Module; } catch(e){ window.Module = undefined; }
-    const res = await fetch("lib/qpdf/qpdf.wasm");
+    const res = await fetch(abs("lib/qpdf/qpdf.wasm"));
     if(!res.ok) throw new Error("Komponen kunci PDF gagal dimuat. Periksa koneksi internet lalu coba lagi.");
     qpdfWasm = await WebAssembly.compile(await res.arrayBuffer());
   }

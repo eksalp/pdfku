@@ -24,7 +24,7 @@ const FONTS = {
 const fontBytes = {}, faceDone = {};
 async function fetchFont(file){
   if(fontBytes[file]) return fontBytes[file];
-  const r = await fetch("lib/edit-fonts/" + file);
+  const r = await fetch(J.abs("lib/edit-fonts/" + file));
   if(!r.ok) throw new Error("Huruf gagal dimuat. Periksa koneksi lalu coba lagi.");
   return fontBytes[file] = new Uint8Array(await r.arrayBuffer());
 }

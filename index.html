@@ -2,17 +2,19 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.googleadservices.com https://*.google.com https://adservice.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.googleadservices.com; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com https://*.googlesyndication.com; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>JagoPDF — Alat PDF Gratis di Browser</title>
-<meta name="description" content="JagoPDF: gabung, pisah, kompres, edit, tanda tangan, kunci PDF, serta ubah Word, Excel, dan PowerPoint ke PDF. Gratis, file diproses di perangkatmu.">
+<meta name="description" content="JagoPDF: gabung, pisah, kompres, edit, tanda tangan, kunci PDF, serta ubah Word & Excel ke PDF. Gratis, file diproses di perangkatmu.">
+<!-- Google AdSense · Publisher ID: ca-pub-1454419403270254 -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1454419403270254" crossorigin="anonymous"></script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"%3E%3Crect width="32" height="32" rx="8" fill="%23c53a2f"/%3E%3Cpath d="M10 7h8.5l5 5v12.5a1.5 1.5 0 0 1-1.5 1.5H10a1.5 1.5 0 0 1-1.5-1.5v-16A1.5 1.5 0 0 1 10 7z" fill="%23fff"/%3E%3Cpath d="M18.5 7v3.5a1.5 1.5 0 0 0 1.5 1.5h3.5z" fill="%23c53a2f" opacity=".3"/%3E%3Cpath d="M17.6 13v6a3 3 0 0 1-6 0" fill="none" stroke="%23c53a2f" stroke-width="2.7" stroke-linecap="round"/%3E%3C/svg%3E">
-<link rel="stylesheet" href="lib/fonts.css">
-<script src="lib/pdf-lib.min.js"></script>
-<script src="lib/pdf.min.js"></script>
-<script src="lib/pdf.worker.min.js"></script>
-<script src="lib/jszip.min.js"></script>
+<link rel="stylesheet" href="/lib/fonts.css">
+<script src="/lib/pdf-lib.min.js"></script>
+<script src="/lib/pdf.min.js"></script>
+<script src="/lib/pdf.worker.min.js"></script>
+<script src="/lib/jszip.min.js"></script>
 <style>
 /* Hallmark · redesign (study: dinorexpdf.com DNA — warm paper, pink cloud wash, glass cards, bright red with glow) · genre: modern-minimal
  * paper #f7f5f4-ish · accent oklch(57.5% 0.235 28) bright red · type: Poppins (user-chosen), heavy display weight, tight tracking
@@ -554,6 +556,11 @@ header.top{position:sticky}
 }
 
 /* home: semua alat */
+.adwrap{margin:var(--space-6) 0 0;display:flex;flex-direction:column-reverse;align-items:center;gap:6px}
+.adwrap ins{display:block;width:100%;max-width:970px}
+.adwrap .ad-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-ink-3)}
+/* sembunyikan slot sampai iklan benar-benar terisi */
+.adwrap:not(:has(ins[data-ad-status="filled"])){display:none}
 .all-tools{margin-top:var(--space-6)}
 .at-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap;margin:0 0 var(--space-4)}
 .at-head h2{font-size:clamp(1.5rem,1.2rem + 1vw,2rem);font-weight:700;letter-spacing:-.035em}
@@ -755,7 +762,7 @@ input[type=range]{width:100%;accent-color:var(--color-accent);height:24px;cursor
               <button class="big" data-pick="home">Pilih file</button>
               <span class="paste"><kbd class="kmod">Ctrl</kbd> + <kbd>V</kbd> untuk menempel</span>
             </div>
-            <div class="types" aria-label="Format yang didukung"><span>PDF</span><span>JPG</span><span>PNG</span><span>Word</span><span>Excel</span><span>PowerPoint</span></div>
+            <div class="types" aria-label="Format yang didukung"><span>PDF</span><span>JPG</span><span>PNG</span><span>Word</span><span>Excel</span></div>
           </div>
         </div>
         <div class="intake-result" id="intake-result" aria-live="polite"></div>
@@ -766,6 +773,12 @@ input[type=range]{width:100%;accent-color:var(--color-accent);height:24px;cursor
         <div class="ts-head"><h2>Pilih alat</h2><span class="pill" id="tool-count"></span></div>
         <div class="grid" id="toolgrid"></div>
       </aside>
+    </div>
+
+    <div class="adwrap" aria-label="Iklan">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-1454419403270254" data-ad-slot="0000000000" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <span class="ad-label">Iklan</span>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
 
     <section class="all-tools" aria-labelledby="all-h">
@@ -1229,14 +1242,14 @@ input[type=range]{width:100%;accent-color:var(--color-accent);height:24px;cursor
         <ul class="nosrv-only">
           <li>Semua alat memproses file di perangkatmu sendiri. File tidak pernah di-upload ke server mana pun.</li>
           <li>Kami tidak menyimpan, membaca, atau menyalin file kamu.</li>
-          <li>Tidak perlu daftar, tidak ada login, tidak ada cookie pelacak.</li>
+          <li>Tidak perlu daftar atau login. JagoPDF menampilkan iklan Google (AdSense) yang memakai cookie, tapi iklan tidak pernah melihat isi filemu.</li>
           <li>Begitu tab ditutup, semua data hilang dari memori perangkatmu.</li>
         </ul>
         <ul class="srv-only">
           <li>Alat bertanda <span class="mk">lokal</span> memproses file di perangkatmu sendiri. File tidak pernah di-upload.</li>
           <li>Alat bertanda <span class="mk mk-srv">server</span> mengirim file ke server JagoPDF lewat koneksi terenkripsi. File langsung dihapus begitu hasilnya dikirim.</li>
           <li>Kami tidak menyimpan, membaca, atau memakai isi file kamu untuk apa pun.</li>
-          <li>Tidak perlu daftar, tidak ada login, tidak ada cookie pelacak.</li>
+          <li>Tidak perlu daftar atau login. JagoPDF menampilkan iklan Google (AdSense) yang memakai cookie, tapi iklan tidak pernah melihat isi filemu.</li>
         </ul>
       </div>
       <div class="lgrid">
@@ -1267,8 +1280,8 @@ input[type=range]{width:100%;accent-color:var(--color-accent);height:24px;cursor
         <ul>
           <li><b>Isi file:</b> tidak disimpan, tidak dilihat siapa pun, dan tidak dipakai untuk melatih AI atau keperluan lain.</li>
           <li><b>Data pribadi:</b> kami tidak meminta nama, email, atau nomor HP.</li>
-          <li><b>Pelacakan:</b> tidak ada cookie, Google Analytics, piksel iklan, atau pelacak lain.</li>
-          <li><b>Pihak ketiga:</b> semua kode, font, dan mesin pengolah PDF di-host di situs JagoPDF sendiri. Halaman ini tidak memuat apa pun dari Google, CDN, atau layanan lain.</li>
+          <li><b>Iklan:</b> JagoPDF menampilkan iklan dari Google AdSense. Google dapat memakai cookie dan alamat IP-mu untuk memilih iklan. Kamu bisa mengatur atau mematikan iklan yang dipersonalisasi di <b>myadcenter.google.com</b>. Kami sendiri tidak memasang Google Analytics atau pelacak lain.</li>
+          <li><b>Pihak ketiga:</b> kode, font, dan mesin pengolah PDF di-host di situs JagoPDF sendiri. Satu-satunya layanan luar yang dimuat adalah iklan Google AdSense.</li>
         </ul>
         <p>Seperti semua situs web, penyedia hosting bisa mencatat log akses standar, yaitu alamat IP, waktu kunjungan, jenis browser, dan halaman yang dibuka. Log ini dipakai untuk keamanan dan <b>tidak berisi nama file atau isi dokumen kamu</b>.</p>
       </div>
@@ -1277,8 +1290,8 @@ input[type=range]{width:100%;accent-color:var(--color-accent);height:24px;cursor
       <div class="panel">
         <h3>Pengaman teknis</h3>
         <ul>
-          <li><b>Content Security Policy (CSP):</b> browser hanya mengizinkan halaman ini terhubung ke situs JagoPDF sendiri. Kode mana pun yang mencoba mengirim data ke tempat lain akan diblokir oleh browser.</li>
-          <li><b>Alat <span class="mk">lokal</span> tidak mengirim file sama sekali.</b> Satu-satunya yang diunduh dari situs JagoPDF adalah aplikasinya sendiri, termasuk mesin kompres, data OCR, dan LibreOffice saat pertama kali dipakai. Tanda tangan yang kamu buat juga tidak disimpan di mana pun.</li>
+          <li><b>Content Security Policy (CSP):</b> browser hanya mengizinkan halaman ini terhubung ke JagoPDF sendiri dan ke jaringan iklan Google. Isi filemu diproses di perangkat dan tidak pernah ikut terkirim ke mana pun.</li>
+          <li><b>File tidak pernah dikirim ke server.</b> Semua alat memproses file di perangkatmu. Yang diunduh dari JagoPDF hanya aplikasinya sendiri, termasuk mesin kompres dan data OCR saat pertama dipakai. Tanda tangan yang kamu buat juga tidak disimpan di mana pun.</li>
           <li><b>HTTPS:</b> semua koneksi terenkripsi.</li>
           <li><b>Tanpa akses perangkat:</b> JagoPDF tidak meminta akses kamera, mikrofon, lokasi, atau kontak.</li>
         </ul>
@@ -1312,9 +1325,9 @@ input[type=range]{width:100%;accent-color:var(--color-accent);height:24px;cursor
 </div>
 <div class="toast" id="toast" role="status"></div>
 
-<script src="app.js"></script>
-<script src="tools.js"></script>
-<script src="tools-office.js"></script>
-<script src="tools-edit.js"></script>
+<script src="/app.js"></script>
+<script src="/tools.js"></script>
+<script src="/tools-office.js"></script>
+<script src="/tools-edit.js"></script>
 </body>
 </html>

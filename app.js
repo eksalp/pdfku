@@ -1,7 +1,7 @@
 (function(){
 "use strict";
 const { PDFDocument } = PDFLib;
-if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = "lib/pdf.worker.min.js";
+if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = new URL("lib/pdf.worker.min.js", location.origin + "/").href;
 
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
@@ -35,9 +35,9 @@ const TOOLS = [
   {id:"pisah", g:"atur", h:"pisah", tone:"split", title:"Pisah PDF", desc:"Ambil halaman tertentu atau pecah jadi beberapa file.", icon:ICON.split, where:"local"},
   {id:"kompres", g:"atur", h:"zip", tone:"compress", title:"Kompres PDF", desc:"Perkecil ukuran file, teks tetap bisa dicopy.", icon:ICON.zip, where:"local"},
   {id:"gambar-ke-pdf", g:"ke", h:"img", tone:"img", title:"Gambar ke PDF", desc:"Ubah JPG, PNG, WEBP jadi satu PDF.", icon:ICON.img, where:"local"},
-  {id:"word-ke-pdf", g:"ke", h:"o2p", view:"v-o2p", tone:"word", title:"Word ke PDF", desc:"Ubah DOCX/DOC jadi PDF.", icon:ICON2.word, where:"local", o2p:"word"},
-  {id:"excel-ke-pdf", g:"ke", h:"o2p", view:"v-o2p", tone:"excel", title:"Excel ke PDF", desc:"Ubah XLSX/XLS jadi PDF.", icon:ICON2.excel, where:"local", o2p:"excel"},
-  {id:"ppt-ke-pdf", g:"ke", h:"o2p", view:"v-o2p", tone:"ppt", title:"PowerPoint ke PDF", desc:"Ubah PPTX/PPT jadi PDF.", icon:ICON2.ppt, where:"local", o2p:"ppt"},
+  {id:"word-ke-pdf", g:"ke", h:"o2p", view:"v-o2p", tone:"word", title:"Word ke PDF", desc:"Ubah DOCX/DOC jadi PDF.", icon:ICON2.word, where:"local", o2p:"word", iso:true},
+  {id:"excel-ke-pdf", g:"ke", h:"o2p", view:"v-o2p", tone:"excel", title:"Excel ke PDF", desc:"Ubah XLSX/XLS jadi PDF.", icon:ICON2.excel, where:"local", o2p:"excel", iso:true},
+  {id:"ppt-ke-pdf", g:"ke", h:"o2p", view:"v-o2p", tone:"ppt", title:"PowerPoint ke PDF", desc:"Ubah PPTX/PPT jadi PDF.", icon:ICON2.ppt, where:"local", o2p:"ppt", iso:true},
   {id:"pdf-ke-jpg", g:"dari", h:"jpg", tone:"jpg", title:"PDF ke JPG", desc:"Ubah setiap halaman PDF jadi gambar.", icon:ICON.jpg, where:"local"},
   {id:"pdf-ke-word", g:"dari", h:"p2o", view:"v-p2o", tone:"word", title:"PDF ke Word", desc:"Ambil isi PDF jadi dokumen Word yang bisa diedit.", icon:ICON2.word, where:"local", p2o:"word"},
   {id:"pdf-ke-excel", g:"dari", h:"p2o", view:"v-p2o", tone:"excel", title:"PDF ke Excel", desc:"Ambil tabel di PDF jadi spreadsheet Excel.", icon:ICON2.excel, where:"local", p2o:"excel"},
@@ -66,13 +66,16 @@ const ACTIVE = TOOLS.filter(t => API_BASE || t.where !== "server");
 
 /* ---------- shell ---------- */
 const toolById = id => TOOLS.find(t => t.id === id);
-const cardHTML = t => `<a class="tool-card" href="#${t.id}" data-tone="${t.tone}"><div class="ic">${t.icon}</div><h3>${t.title}</h3><p>${t.desc}</p></a>`;
+// halaman /office terisolasi (untuk LibreOffice) tidak memuat iklan; alat "ke PDF" akurat diarahkan ke sana
+const onOffice = /^\/office(\/|$)/.test(location.pathname);
+const hrefFor = t => t.iso ? (onOffice ? "#"+t.id : "office/#"+t.id) : (onOffice ? "/#"+t.id : "#"+t.id);
+const cardHTML = t => `<a class="tool-card" href="${hrefFor(t)}" data-tone="${t.tone}"><div class="ic">${t.icon}</div><h3>${t.title}</h3><p>${t.desc}</p></a>`;
 $("#toolgrid").innerHTML = POPULAR.map(toolById).filter(Boolean).map(cardHTML).join("");
 $("#tool-count").textContent = ACTIVE.length + " alat";
 $("#allgroups").innerHTML = GROUPS.map(g => { const ts = ACTIVE.filter(t => t.g === g.id); return ts.length ? `<div class="grp"><h3>${g.title}</h3><div class="grp-list">${ts.map(cardHTML).join("")}</div></div>` : ""; }).join("");
-$("#mega-body").innerHTML = GROUPS.map(g => { const ts = ACTIVE.filter(t => t.g === g.id); return ts.length ? `<div class="mg"><h4>${g.title}</h4>${ts.map(t => `<a href="#${t.id}" data-id="${t.id}"><span class="mi" data-tone="${t.tone}">${t.icon}</span>${t.title}</a>`).join("")}</div>` : ""; }).join("");
+$("#mega-body").innerHTML = GROUPS.map(g => { const ts = ACTIVE.filter(t => t.g === g.id); return ts.length ? `<div class="mg"><h4>${g.title}</h4>${ts.map(t => `<a href="${hrefFor(t)}" data-id="${t.id}"><span class="mi" data-tone="${t.tone}">${t.icon}</span>${t.title}</a>`).join("")}</div>` : ""; }).join("");
 if(/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)) $$(".kmod").forEach(k => k.textContent = "⌘");
-$("#topnav").innerHTML = QUICK.map(toolById).map(t => `<a href="#${t.id}" data-id="${t.id}">${t.title.replace(" PDF","")}</a>`).join("");
+$("#topnav").innerHTML = QUICK.map(toolById).map(t => `<a href="${hrefFor(t)}" data-id="${t.id}">${t.title.replace(" PDF","")}</a>`).join("");
 // menu "Semua alat"
 const mega = $("#mega"), megaBtn = $("#mega-btn");
 function setMega(open){ mega.classList.toggle("on", open); megaBtn.setAttribute("aria-expanded", String(open)); document.body.classList.toggle("mega-open", open); }
@@ -389,7 +392,6 @@ handlers.home = (fs) => {
   if(imgs.length) acts.push({id:"gambar-ke-pdf", label: imgs.length===1 ? "Jadikan PDF" : `Jadikan ${imgs.length} gambar satu PDF`, files:imgs});
   if(docs.length) acts.push({id:"word-ke-pdf", label:"Word ke PDF", files:docs});
   if(xls.length) acts.push({id:"excel-ke-pdf", label:"Excel ke PDF", files:xls});
-  if(ppts.length) acts.push({id:"ppt-ke-pdf", label:"PowerPoint ke PDF", files:ppts});
   const ok = new Set([...pdfs, ...imgs, ...docs, ...xls, ...ppts]);
   const rows = fs.map(f => { const ext = (f.name.match(/\.([^.]+)$/)||["",""])[1] || "?";
     return `<li class="${ok.has(f)?"":"skip"}"><span class="ext">${esc(ext.slice(0,5))}</span><span class="nm" title="${esc(f.name)}">${esc(f.name)}</span><span class="sz">${ok.has(f) ? fmtSize(f.size) : "tidak didukung"}</span></li>`; }).join("");
@@ -403,7 +405,9 @@ handlers.home = (fs) => {
     const a = acts[+b.dataset.act];
     location.hash = a.id;
     $("#intake").classList.remove("has-files");
-    setTimeout(() => handlers[toolById(a.id).h](a.files), 0);
+    const _t = toolById(a.id);
+    if(_t && _t.iso && !onOffice && _t.o2p === "ppt"){ location.href = "office/#" + a.id; return; }
+    setTimeout(() => handlers[_t.h](a.files), 0);
   });
 };
 
@@ -753,7 +757,7 @@ function gsArgs(L){
 function gsCompress(file, L, pages, onMsg){
   return new Promise(async (resolve, reject) => {
     let w;
-    try{ w = new Worker("lib/gs-worker.js", {type:"module"}); }
+    try{ w = new Worker(new URL("lib/gs-worker.js", location.origin + "/").href, {type:"module"}); }
     catch(e){ reject(new Error("Browser ini belum mendukung mesin kompres. Coba Chrome, Edge, Safari, atau Firefox versi terbaru.")); return; }
     const done = (fn, v) => { w.terminate(); fn(v); };
     w.onerror = () => done(reject, new Error("Mesin kompres gagal dimuat. Periksa koneksi internet lalu coba lagi."));

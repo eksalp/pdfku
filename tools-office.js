@@ -163,13 +163,16 @@ function syncO2p(){
   const K = KIND[OP.kind], light = !OP.file || K.light.includes(OP.ext), lo = LO_OK();
   const bCepat = $('#o2p-mode [data-v="cepat"]'), bAkurat = $('#o2p-mode [data-v="akurat"]');
   bCepat.disabled = !light || K.light.length === 0; bAkurat.disabled = !lo;
+  // mode Akurat hanya tampil bila browser mendukung (tanpa iklan/isolasi, LibreOffice nonaktif)
+  $("#o2p-mode").style.display = lo ? "" : "none";
+  if(!lo && getMode() === "akurat" && !bCepat.disabled) bCepat.click();
   let mode = getMode();
   if(mode === "cepat" && bCepat.disabled && !bAkurat.disabled){ bAkurat.click(); return; }
   if(mode === "akurat" && bAkurat.disabled && !bCepat.disabled){ bCepat.click(); return; }
   const note = $("#o2p-note"); let msg = "";
-  if(!lo) msg = location.protocol === "file:" ? "Mode Akurat butuh situs dibuka lewat internet." : "Mode Akurat butuh browser terbaru (Chrome, Edge, Firefox, Safari) dan situs dibuka langsung di jagopdf.web.id.";
-  if(K.light.length === 0) msg = (lo ? "PowerPoint hanya bisa diubah dengan mode Akurat." : "PowerPoint butuh mode Akurat. " + msg);
-  else if(OP.file && !light) msg = `File ${OP.ext} hanya bisa diubah dengan mode Akurat.` + (lo ? "" : " " + msg);
+  if(lo && !light) msg = `File ${OP.ext} hanya bisa diubah dengan mode Akurat.`;
+  else if(lo && K.light.length === 0) msg = "PowerPoint hanya bisa diubah dengan mode Akurat.";
+  else if(!light || K.light.length === 0) msg = `Format ${OP.ext || "ini"} belum didukung di browser ini. Simpan dulu sebagai .docx / .xlsx, lalu ubah di sini.`;
   note.textContent = msg; note.style.display = msg ? "" : "none";
   $("#opt-o2p-orient").style.display = OP.kind === "excel" && mode === "cepat" ? "" : "none";
   const h = $("#hint-o2p");
