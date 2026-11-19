@@ -173,7 +173,7 @@ function syncO2p(){
   note.textContent = msg; note.style.display = msg ? "" : "none";
   $("#opt-o2p-orient").style.display = OP.kind === "excel" && mode === "cepat" ? "" : "none";
   const h = $("#hint-o2p");
-  h.textContent = mode === "cepat" ? "Dialog cetak akan terbuka. Pilih Simpan sebagai PDF di bagian Tujuan." : (LO.conv ? "Mesin LibreOffice sudah siap." : "Pertama kali, browser mengunduh LibreOffice (±77 MB) sekali saja. Setelah itu tersimpan dan cepat.");
+  h.textContent = mode === "cepat" ? "Dialog cetak akan terbuka. Pilih Simpan sebagai PDF di bagian Tujuan." : (LO.conv ? "Mesin LibreOffice sudah siap." : "Pertama kali, browser mengunduh LibreOffice (±78 MB terkompres) sekali saja. Setelah itu tersimpan di perangkat dan langsung cepat.");
   $("#go-o2p").textContent = mode === "cepat" ? "Simpan sebagai PDF" : "Ubah ke PDF";
   $("#go-o2p").disabled = !OP.file || (mode === "cepat" ? bCepat.disabled : bAkurat.disabled);
 }
@@ -199,20 +199,25 @@ async function printLight(){
 /* --- mode Akurat: LibreOffice di browser --- */
 const LO = { conv:null, loading:null };
 const LO_BASE = J.abs("lib/lo/");
+async function gunzip(buf){
+  const ds = new Response(buf).body.pipeThrough(new DecompressionStream("gzip"));
+  return await new Response(ds).blob();
+}
 async function loEnsureCached(onFrac){
   const man = await (await fetch(LO_BASE + "manifest.json", {cache:"no-cache"})).json();
   const cache = await caches.open("jagopdf-lo-" + man.version);
   const files = [["soffice.wasm", man.wasm, "application/wasm"], ["soffice.data", man.data, "application/octet-stream"]];
-  const total = man.wasm.size + man.data.size; let done = 0;
+  // progres dihitung dari ukuran unduhan (sudah dikompres gzip)
+  const total = (man.wasm.gz || man.wasm.size) + (man.data.gz || man.data.size); let done = 0;
   for(const [name, info, type] of files){
-    if(await cache.match(LO_BASE + name)){ done += info.size; onFrac(done/total); continue; }
+    if(await cache.match(LO_BASE + name)){ done += (info.gz || info.size); onFrac(done/total); continue; }
     const blobs = [];
     for(let i = 0; i < info.parts; i++){
-      const r = await fetch(`${LO_BASE}${name}.part${String(i).padStart(2, "0")}`);
+      const r = await fetch(`${LO_BASE}${name}.part${String(i).padStart(2, "0")}.gz`);
       if(!r.ok) throw new Error("Gagal mengunduh LibreOffice. Periksa koneksi internet lalu coba lagi.");
-      const reader = r.body.getReader(), chunks = [];
-      for(;;){ const {done:d, value} = await reader.read(); if(d) break; chunks.push(value); done += value.length; onFrac(done/total); }
-      blobs.push(new Blob(chunks));
+      const reader = r.body.getReader(), raw = [];
+      for(;;){ const {done:d, value} = await reader.read(); if(d) break; raw.push(value); done += value.length; onFrac(done/total); }
+      blobs.push(await gunzip(await new Blob(raw).arrayBuffer()));
     }
     const blob = new Blob(blobs, {type});
     await cache.put(LO_BASE + name, new Response(blob, {headers:{"Content-Type":type, "Content-Length":String(blob.size)}}));

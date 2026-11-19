@@ -45,8 +45,8 @@ const TOOLS = [
   {id:"edit-pdf", g:"edit", h:"edit", view:"v-edit", tone:"edit", title:"Edit PDF", desc:"Tambah teks, gambar, coretan, atau tutup bagian.", icon:ICON2.edit, where:"local"},
   {id:"tanda-tangan", g:"edit", h:"edit", view:"v-edit", tone:"sign", title:"Tanda tangan PDF", desc:"Gambar, ketik, atau unggah tanda tanganmu.", icon:ICON2.sign, where:"local"},
   {id:"watermark", g:"edit", h:"wm", tone:"wm", title:"Watermark PDF", desc:"Beri tanda teks atau logo di setiap halaman.", icon:ICON2.wm, where:"local"},
-  {id:"kunci-pdf", g:"edit", h:"lock", tone:"lock", title:"Kunci PDF", desc:"Lindungi PDF dengan kata sandi (AES-256).", icon:ICON2.lock, where:"local"},
-  {id:"buka-kunci-pdf", g:"edit", h:"unlock", tone:"unlock", title:"Buka kunci PDF", desc:"Hapus kata sandi dari PDF milikmu.", icon:ICON2.unlock, where:"local"},
+  {id:"lock-pdf", g:"edit", h:"lock", tone:"lock", title:"Lock PDF", desc:"Kunci PDF dengan kata sandi (AES-256).", icon:ICON2.lock, where:"local"},
+  {id:"unlock-pdf", g:"edit", h:"unlock", tone:"unlock", title:"Unlock PDF", desc:"Hapus kata sandi & batasan dari PDF milikmu.", icon:ICON2.unlock, where:"local"},
 ];
 const POPULAR = ["gabung","kompres","edit-pdf","tanda-tangan","word-ke-pdf","pdf-ke-word"];
 const QUICK = ["gabung","pisah","kompres","edit-pdf","tanda-tangan"];
@@ -383,8 +383,8 @@ handlers.home = (fs) => {
     acts.push({id:"pdf-ke-jpg", label:"Ubah ke JPG", files:one});
     acts.push({id:"pdf-ke-teks", label:"Ambil teks", files:one});
     acts.push({id:"watermark", label:"Beri watermark", files:one});
-    acts.push({id:"kunci-pdf", label:"Kunci", files:one});
-    acts.push({id:"buka-kunci-pdf", label:"Buka kunci", files:one});
+    acts.push({id:"lock-pdf", label:"Lock (beri sandi)", files:one});
+    acts.push({id:"unlock-pdf", label:"Unlock (hapus sandi)", files:one});
   }
   if(imgs.length) acts.push({id:"gambar-ke-pdf", label: imgs.length===1 ? "Jadikan PDF" : `Jadikan ${imgs.length} gambar satu PDF`, files:imgs});
   if(docs.length) acts.push({id:"word-ke-pdf", label:"Word ke PDF", files:docs});

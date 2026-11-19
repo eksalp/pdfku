@@ -1,0 +1,2 @@
+Poppins, Lora, Montserrat, Playfair Display, Oswald, Roboto Mono, Caveat, Dancing Script
+— all under the SIL Open Font License 1.1 (Google Fonts). Subset to Latin for JagoPDF's PDF editor.

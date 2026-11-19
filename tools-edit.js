@@ -8,10 +8,39 @@ const { $, $$, esc, baseName, isPdf, handlers, toast, showProgress, progress, op
 const { PDFDocument, StandardFonts, rgb, degrees, BlendMode, LineCapStyle } = PDFLib;
 
 const FONTS = {
-  sans:  { css:"Helvetica, Arial, sans-serif", base:0.93, std:[StandardFonts.Helvetica, StandardFonts.HelveticaBold], label:"Sans" },
-  serif: { css:"'Times New Roman', Times, serif", base:0.92, std:[StandardFonts.TimesRoman, StandardFonts.TimesRomanBold], label:"Serif" },
-  mono:  { css:"'Courier New', Courier, monospace", base:0.86, std:[StandardFonts.Courier, StandardFonts.CourierBold], label:"Mono" },
+  sans:   { label:"Sans",         css:"Helvetica, Arial, sans-serif",      base:0.90, std:[StandardFonts.Helvetica, StandardFonts.HelveticaBold] },
+  serif:  { label:"Serif",        css:"'Times New Roman', Times, serif",   base:0.88, std:[StandardFonts.TimesRoman, StandardFonts.TimesRomanBold] },
+  mono:   { label:"Mono",         css:"ui-monospace, 'Courier New', monospace", base:0.82, std:[StandardFonts.Courier, StandardFonts.CourierBold] },
+  poppins:{ label:"Poppins",      css:"'JPf Poppins', sans-serif",         base:0.98, file:"Poppins.ttf",    bold:"Poppins-Bold.ttf" },
+  montser:{ label:"Montserrat",   css:"'JPf Montserrat', sans-serif",      base:0.95, file:"Montserrat.ttf", bold:"Montserrat-Bold.ttf" },
+  lora:   { label:"Lora",         css:"'JPf Lora', serif",                 base:0.93, file:"Lora.ttf",       bold:"Lora-Bold.ttf" },
+  playfair:{label:"Playfair",     css:"'JPf Playfair', serif",             base:0.96, file:"Playfair.ttf",  bold:"Playfair-Bold.ttf" },
+  oswald: { label:"Oswald",       css:"'JPf Oswald', sans-serif",          base:0.98, file:"Oswald.ttf",    bold:"Oswald-Bold.ttf" },
+  robmono:{ label:"Roboto Mono",  css:"'JPf RobotoMono', monospace",       base:0.88, file:"RobotoMono.ttf",bold:"RobotoMono-Bold.ttf" },
+  caveat: { label:"Caveat",       css:"'JPf Caveat', cursive",             base:0.70, file:"Caveat.ttf" },
+  dancing:{ label:"Dancing",      css:"'JPf Dancing', cursive",            base:0.62, file:"Dancing.ttf" },
 };
+// muat huruf tersemat hanya saat dipakai
+const fontBytes = {}, faceDone = {};
+async function fetchFont(file){
+  if(fontBytes[file]) return fontBytes[file];
+  const r = await fetch("lib/edit-fonts/" + file);
+  if(!r.ok) throw new Error("Huruf gagal dimuat. Periksa koneksi lalu coba lagi.");
+  return fontBytes[file] = new Uint8Array(await r.arrayBuffer());
+}
+async function loadFace(key){
+  const F = FONTS[key]; if(!F.file || faceDone[key]) return;
+  faceDone[key] = true;
+  const fam = F.css.match(/'([^']+)'/)[1];
+  try{
+    for(const [w, file] of [[400, F.file], [700, F.bold]]){
+      if(!file) continue;
+      const b = await fetchFont(file);
+      const face = new FontFace(fam, b.buffer, {weight: String(w)});
+      await face.load(); document.fonts.add(face);
+    }
+  }catch(e){ faceDone[key] = false; throw e; }
+}
 const COLORS = ["#111111","#e1000d","#1d4ed8","#15803d","#6b7280","#ffffff"];
 const E = { file:null, pdf:null, pages:[], objs:[], sel:null, tool:"select", hist:[], mode:"edit",
   text:{font:"sans", size:14, color:"#111111", bold:false}, pen:{color:"#e1000d", w:2}, uid:0, io:null, lastPage:1 };
@@ -19,6 +48,7 @@ const root = $("#w-edit");
 const HINTS = {
   select:"Klik objek untuk memilih, lalu geser. Tarik titik di pojok untuk mengubah ukuran. Klik dua kali teks untuk mengubahnya.",
   text:"Klik di halaman untuk menambah teks.",
+  retext:"Klik tulisan yang sudah ada di PDF untuk mengubahnya langsung.",
   sign:"Buat tanda tangan, lalu geser ke tempat yang tepat.",
   image:"Pilih gambar, lalu geser dan atur ukurannya.",
   white:"Seret di halaman untuk menutup bagian dengan kotak putih.",
@@ -96,6 +126,7 @@ function renderProps(){
   if(kind === "t"){
     const s = o || E.text;
     h += `<select id="ep-font" aria-label="Jenis huruf">${Object.entries(FONTS).map(([k, f]) => `<option value="${k}"${s.font === k ? " selected" : ""}>${f.label}</option>`).join("")}</select>`;
+    Promise.all(Object.keys(FONTS).map(k => (s.font === k ? loadFace(k).catch(()=>{}) : null)));
     h += `<input class="num" id="ep-size" type="number" min="6" max="120" value="${s.size}" aria-label="Ukuran huruf">`;
     h += `<button class="tb${s.bold ? " on" : ""}" id="ep-bold" aria-label="Tebal">B</button>`;
     h += swHTML(s.color, 'id="ep-color"');
@@ -111,7 +142,7 @@ $("#ed-props").addEventListener("change", e => {
   const o = E.sel ? E.objs.find(x => x.id === E.sel) : null;
   const tgt = o && (o.type === "t" || o.type === "p") ? o : null;
   if(o) snapshot();
-  if(e.target.id === "ep-font"){ (tgt || E.text).font = e.target.value; if(!tgt) E.text.font = e.target.value; }
+  if(e.target.id === "ep-font"){ const k = e.target.value; (tgt || E.text).font = k; E.text.font = k; loadFace(k).then(() => { if(tgt) drawObj(tgt); }).catch(() => toast("Huruf gagal dimuat")); }
   if(e.target.id === "ep-size"){ const v = Math.max(6, Math.min(120, +e.target.value || 14)); (tgt || E.text).size = v; E.text.size = v; }
   if(e.target.id === "ep-w"){ (tgt || E.pen).w = +e.target.value; E.pen.w = +e.target.value; }
   if(tgt) drawObj(tgt);
@@ -151,11 +182,13 @@ function drawObj(o){
     el = document.createElement("div"); el.dataset.id = o.id; el.className = "eo " + o.type;
     if(o.type === "i") el.innerHTML = `<img alt="" draggable="false">`;
     if(o.type !== "p") el.insertAdjacentHTML("beforeend", `<span class="hd" data-h></span>`);
+    if(o.type === "i") el.insertAdjacentHTML("beforeend", `<span class="rh" data-rh title="Putar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3v6h-6"/><path d="M20.5 9A9 9 0 1 0 18 18"/></svg></span>`);
     el.insertAdjacentHTML("beforeend", `<button class="xb" data-x aria-label="Hapus"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>`);
     p.layer.appendChild(el);
   }
   el.classList.toggle("sel", E.sel === o.id);
   el.style.left = pct(o.x); el.style.top = pct(o.y);
+  if(o.type === "i" || o.type === "t") el.style.transform = o.rot ? `rotate(${o.rot}deg)` : "";
   if(o.type === "t"){
     let span = el.querySelector(".tx"); if(!span){ span = document.createElement("span"); span.className = "tx"; el.prepend(span); }
     if(!span.isContentEditable) span.textContent = o.text;
@@ -173,7 +206,8 @@ function drawObj(o){
     if(o.type === "i"){ const img = el.querySelector("img"); if(img.getAttribute("src") !== o.src) img.src = o.src; }
   }
 }
-function addObj(o){ snapshot(); o.id = "o" + (++E.uid); E.objs.push(o); drawObj(o); return o; }
+function mkObj(o){ o.id = "o" + (++E.uid); E.objs.push(o); drawObj(o); return o; }
+function addObj(o){ snapshot(); return mkObj(o); }
 function removeObj(id){
   snapshot(); E.objs = E.objs.filter(o => o.id !== id);
   $$(`.eo[data-id="${id}"]`).forEach(el => el.remove());
@@ -194,9 +228,11 @@ $("#ed-pages").addEventListener("pointerdown", e => {
   const n = +layer.parentElement.dataset.n, p = E.pages[n]; E.lastPage = n;
   const objEl = e.target.closest(".eo");
   if(e.target.closest("[data-x]")){ e.preventDefault(); removeObj(objEl.dataset.id); return; }
+  if(e.target.closest("[data-rh]") && objEl){ e.preventDefault(); const o = E.objs.find(x => x.id === objEl.dataset.id); select(o.id); snapshot(); drag = { kind:"rotate", o, el:objEl }; objEl.setPointerCapture(e.pointerId); return; }
   if(e.target.closest('[contenteditable="true"]')) return; // sedang mengetik
   const [fx, fy] = frac(p, e);
-  if(E.tool === "select" || (objEl && E.tool === "text")){
+  if(E.tool === "retext" && !objEl){ e.preventDefault(); pickText(n, fx, fy); return; }
+  if(E.tool === "select" || (objEl && (E.tool === "text" || E.tool === "retext"))){
     if(!objEl){ select(null); return; }
     const o = E.objs.find(x => x.id === objEl.dataset.id); if(!o) return;
     if(E.tool === "text" && o.type === "t"){ startEdit(o); return; }
@@ -220,6 +256,13 @@ $("#ed-pages").addEventListener("pointerdown", e => {
 });
 window.addEventListener("pointermove", e => {
   if(!drag) return;
+  if(drag.kind === "rotate"){
+    const r = drag.el.getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height/2;
+    let a = Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI + 90;
+    a = Math.round(a/2)*2; [0,90,180,-90,-180].forEach(k => { if(Math.abs(a - k) < 6) a = k; });
+    if(a <= -180) a += 360; if(a > 180) a -= 360;
+    drag.o.rot = a; drawObj(drag.o); drag.moved = true; return;
+  }
   const [fx, fy] = frac(drag.p, e);
   if(drag.kind === "move"){
     const o = drag.o, dx = fx - drag.sx, dy = fy - drag.sy;
@@ -300,6 +343,29 @@ document.addEventListener("keydown", e => {
   if(e.key === "Escape") select(null);
 });
 
+/* ---------- ubah teks yang sudah ada di PDF ---------- */
+async function pickText(n, fx, fy){
+  const p = E.pages[n]; if(!p) return;
+  if(!E.tcache) E.tcache = {};
+  try{
+    if(!E.tcache[n]){ $("#ed-hint").textContent = "Membaca teks halaman…"; E.tcache[n] = J.toLines((await J.pageItems(E.pdf, n, "off")).items); }
+  }catch(e){ toast("Teks halaman tidak bisa dibaca"); return; }
+  $("#ed-hint").textContent = HINTS.retext;
+  const W = p.W, H = p.H, px = fx*W, py = fy*H;
+  let hit = null, best = 1e9;
+  for(const l of E.tcache[n]){
+    const top = l.y - l.size*0.95, bot = l.y + l.size*0.3;
+    if(px >= l.x - 3 && px <= l.x2 + 3 && py >= top && py <= bot){ const d = Math.abs(py - l.y); if(d < best){ best = d; hit = l; } }
+  }
+  if(!hit){ toast("Tidak ada teks yang bisa diubah di titik itu. Alat ini untuk teks asli PDF, bukan hasil scan."); return; }
+  const size = Math.max(6, Math.round(hit.size)), pad = hit.size*0.2;
+  snapshot();
+  mkObj({type:"w", page:n, x:(hit.x - pad)/W, y:(hit.y - hit.size*0.92)/H, w:(hit.x2 - hit.x + 2*pad)/W, h:(hit.size*1.24)/H});
+  const o = mkObj({type:"t", page:n, x:hit.x/W, y:(hit.y - 0.90*size)/H, text:hit.text, font:"sans", size, color:"#111111", bold:hit.bold});
+  setTool("select"); startEdit(o);
+  $("#ed-hint").textContent = "Teksnya sekarang bisa kamu ubah. Tekan di luar untuk selesai.";
+}
+
 /* ---------- gambar & tanda tangan ---------- */
 function visiblePage(){
   let best = E.lastPage, bestA = -1;
@@ -312,7 +378,7 @@ function placeImage(src, iw, ih, isSig){
   const r = p.el.getBoundingClientRect();
   const visTop = Math.max(0, -r.top) / r.height, visBot = Math.min(r.height, innerHeight - r.top) / r.height;
   let y = (visTop + visBot)/2 - h/2; y = Math.max(0.02, Math.min(1 - h - 0.02, y));
-  const o = addObj({type:"i", page:n, x:(1 - w)/2, y, w, h, src, sig:!!isSig});
+  const o = addObj({type:"i", page:n, x:(1 - w)/2, y, w, h, src, iw, ih, rot:0, sig:!!isSig});
   setTool("select"); select(o.id);
   $("#ed-hint").textContent = isSig ? "Geser tanda tangan ke tempatnya. Tarik titik di pojok untuk mengubah ukuran." : HINTS.select;
 }
@@ -429,7 +495,17 @@ $("#go-edit").onclick = async () => {
     progress(.05, "Membaca file…");
     const doc = await PDFDocument.load(await J.readBytes(E.file));
     const fontCache = {}, imgCache = {};
-    const getFont = async (k, bold) => { const key = k + (bold ? "b" : ""); return fontCache[key] || (fontCache[key] = await doc.embedFont(FONTS[k].std[bold ? 1 : 0])); };
+    if(E.objs.some(o => o.type === "t" && FONTS[o.font] && FONTS[o.font].file)){
+      if(!window.fontkit) await J.loadScript("lib/fontkit.umd.min.js");
+      doc.registerFontkit(window.fontkit);
+    }
+    const getFont = async (k, bold) => {
+      const F = FONTS[k] || FONTS.sans, key = k + (bold ? "b" : "");
+      if(fontCache[key]) return fontCache[key];
+      if(F.std) return fontCache[key] = await doc.embedFont(F.std[bold ? 1 : 0]);
+      const file = (bold && F.bold) ? F.bold : F.file;
+      return fontCache[key] = await doc.embedFont((await fetchFont(file)).buffer, {subset:true});
+    };
     const getImg = async src => imgCache[src] || (imgCache[src] = /^data:image\/jpe?g/.test(src) ? await doc.embedJpg(dataBytes(src)) : await doc.embedPng(dataBytes(src)));
     const byPage = {};
     E.objs.forEach(o => (byPage[o.page] = byPage[o.page] || []).push(o));
@@ -446,8 +522,12 @@ $("#go-edit").onclick = async () => {
         if(o.type === "w") page.drawRectangle({...rectOf(o), color:rgb(1,1,1), borderWidth:0});
         else if(o.type === "h") page.drawRectangle({...rectOf(o), color:rgb(1, 0.886, 0), opacity:0.42, blendMode:BlendMode.Multiply, borderWidth:0});
         else if(o.type === "i"){
-          const img = await getImg(o.src); const [x, y] = P(o.x, o.y + o.h);
-          page.drawImage(img, {x, y, width:o.w*W, height:o.h*H, rotate:degrees(r)});
+          const img = await getImg(o.src), wp = o.w*W, hp = o.h*H;
+          const pa = r - (o.rot || 0), th = pa*Math.PI/180;
+          const [cx, cy] = P(o.x + o.w/2, o.y + o.h/2);
+          const x = cx - (wp/2)*Math.cos(th) + (hp/2)*Math.sin(th);
+          const y = cy - (wp/2)*Math.sin(th) - (hp/2)*Math.cos(th);
+          page.drawImage(img, {x, y, width:wp, height:hp, rotate:degrees(pa)});
         } else if(o.type === "p"){
           const col = J.hexRgb(o.color);
           const pts = o.pts.map(q => P(q[0], q[1]));
