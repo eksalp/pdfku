@@ -1,0 +1,4 @@
+LibreOffice WebAssembly build from @matbee/libreoffice-converter 2.7.2 (MPL-2.0).
+LibreOffice is licensed under the Mozilla Public License 2.0. Source: https://www.libreoffice.org/about-us/source-code/
+soffice.wasm and soffice.data are split into parts under 25 MB (Cloudflare file limit) and joined again in the browser.
+soffice.js: pthread pool size raised from 4 to 12 to avoid a deadlock when loading DOCX/XLSX.
